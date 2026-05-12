@@ -1,22 +1,26 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 export default function Navbar() {
   return (
     <nav className="border-b">
       <div className="max-w-xl mx-auto flex gap-4 px-4 py-3 text-sm">
-        <Link
+        <NavLink
           to="/"
-          className="text-gray-700 hover:text-black transition"
+          className={({ isActive }) => 
+            isActive ? "text-black font-semibold underline" : "text-gray-700 hover:text-black transition"
+          }
         >
           Active Notes
-        </Link>
+        </NavLink>
 
-        <Link
+        <NavLink
           to="/archived"
-          className="text-gray-700 hover:text-black transition"
+          className={({ isActive }) => 
+            isActive ? "text-black font-semibold underline" : "text-gray-700 hover:text-black transition"
+          }
         >
           Archived Notes
-        </Link>
+        </NavLink>
       </div>
     </nav>
   );
