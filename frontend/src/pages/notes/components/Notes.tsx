@@ -73,7 +73,7 @@ export function Notes({
           <p className="text-gray-900 text-base font-medium">
             {emptyState.headline}
           </p>
-          <p className="text-gray-600 text-sm normal mt-2">
+          <p className="text-gray-600 text-sm mt-2">
             {emptyState.subtext}
           </p>
         </div>
