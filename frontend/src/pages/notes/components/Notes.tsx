@@ -23,6 +23,29 @@ export function Notes({
   category,
   setCategory,
 }: NotesT) {
+  const getEmptyStateMessage = () => {
+    if (category !== "") {
+      return {
+        headline: "No notes match your filter",
+        subtext: "Try a different category or clear your filter."
+      };
+    }
+
+    if (showForm) {
+      return {
+        headline: "No notes yet",
+        subtext: "Create your first note above to get started."
+      };
+    }
+
+    return {
+      headline: "No archived notes",
+      subtext: "Notes you archive will appear here. Archive a note to keep your workspace clean without deleting it."
+    };
+  };
+
+  const emptyState = getEmptyStateMessage();
+
   return (
     <div className="max-w-xl mx-auto px-4 py-6 flex flex-col gap-6">
       <h1 className="text-xl font-semibold">{title}</h1>
@@ -44,6 +67,17 @@ export function Notes({
           Clear
         </button>
       </div>
+
+      {notes.length === 0 && (
+        <div className="bg-gray-50 border border-gray-200 rounded-md py-12 px-6 text-center">
+          <p className="text-gray-900 text-base font-medium">
+            {emptyState.headline}
+          </p>
+          <p className="text-gray-600 text-sm normal mt-2">
+            {emptyState.subtext}
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-4">
         {notes.map((note) => (

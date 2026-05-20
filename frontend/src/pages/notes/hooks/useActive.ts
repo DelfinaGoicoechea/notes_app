@@ -35,7 +35,7 @@ export function useActive(){
 
   const handleRefetch = () => {
     handleFetch();
-  }
+  };
 
   return {
     notes,
