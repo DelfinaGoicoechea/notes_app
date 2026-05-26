@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Note } from "../../../types/note";
 import { archiveNote, deleteNote, getActiveNotes, getActiveNotesByCategory } from "../../../services/notes.service";
+import toast from "react-hot-toast";
 
 
 export function useActive(){
@@ -14,9 +15,10 @@ export function useActive(){
         ? await getActiveNotesByCategory(trimmed)
         : await getActiveNotes();
       setNotes(response);
-    } catch (err) {
-      console.error("Failed to fetch active notes", err);
-    }
+    } catch (error) {
+      console.error("useActive - Get active notes failed:", error);
+      toast.error("Failed to load notes. Please try again.");
+    };
   }, [category]);
 
   useEffect(() => {
@@ -24,13 +26,23 @@ export function useActive(){
   }, [handleFetch]);
 
   const handleArchive = async (id: number) => {
-    await archiveNote(id);
-    await handleFetch();
+    try {
+      await archiveNote(id);
+      await handleFetch();
+    } catch(error) {
+      console.error("useActive - Archive note failed:", error);
+      toast.error("Failed to archive note. Please try again.");
+    };
   };
 
   const handleDelete = async (id: number) => {
-    await deleteNote(id);
-    await handleFetch();
+    try {
+      await deleteNote(id);
+      await handleFetch();
+    } catch(error) {
+      console.error("useActive - Delete note failed:", error);
+      toast.error("Failed to delete note. Please try again.");
+    };
   };
 
   const handleRefetch = () => {
