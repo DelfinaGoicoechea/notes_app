@@ -82,4 +82,30 @@ describe('NoteForm - Error Handling (FE-003)', () => {
       expect(mockOnCreated).toHaveBeenCalledTimes(1);
     });
   });
+
+  test('logs errors to console for debugging', async () => {
+    // ARRANGE: Spy on console.error
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    const mockError = new Error('Network timeout');
+    vi.mocked(noteService.createNote).mockRejectedValue(mockError);
+    
+    render(<NoteForm onCreated={vi.fn()} />);
+    
+    // ACT: Fill form and submit to trigger error
+    const titleInput = screen.getByPlaceholderText('Title');
+    fireEvent.change(titleInput, { target: { value: 'Test Note' } });
+    fireEvent.click(screen.getByRole('button', { name: /create/i }));
+    
+    // ASSERT: Verify console.error was called with the error
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'NoteForm - Create note failed:',
+        mockError
+      );
+    });
+    
+    // Cleanup: Restore console.error
+    consoleErrorSpy.mockRestore();
+  });
 });
