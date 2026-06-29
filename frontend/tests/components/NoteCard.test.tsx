@@ -110,7 +110,12 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
     test('updates note and calls onUpdated when update succeeds', async () => {
       //edit title/content, click save, exits edit mode, calls onUpdated
-      vi.mocked(noteService.updateNote).mockResolvedValue(undefined);
+      const mockUpdatedNote = {
+        ...mockNote,
+        title: 'Updated Title',
+        content: 'Updated content',
+      };
+      vi.mocked(noteService.updateNote).mockResolvedValue(mockUpdatedNote);
 
       const mockOnUpdate = vi.fn();
       render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);

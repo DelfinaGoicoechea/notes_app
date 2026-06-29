@@ -63,8 +63,16 @@ describe('NoteForm - Error Handling (FE-003)', () => {
   });
 
   test('clears form and calls onCreated when creation succeeds', async () => {
-
-    vi.mocked(noteService.createNote).mockResolvedValue(undefined);
+    const mockCreatedNote = {
+      id: 1,
+      title: 'Success Title',
+      content: 'Success content',
+      archived: false,
+      categories: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    vi.mocked(noteService.createNote).mockResolvedValue(mockCreatedNote);
 
     const mockOnCreated = vi.fn();
     render(<NoteForm onCreated={mockOnCreated} />);
