@@ -106,6 +106,8 @@ describe('NoteCard - Error Handling (FE-003)', () => {
           mockError
         );
       });
+
+      consoleErrorSpy.mockRestore();
     });
 
     test('updates note and calls onUpdated when update succeeds', async () => {
@@ -141,34 +143,142 @@ describe('NoteCard - Error Handling (FE-003)', () => {
   });
 
   describe('Add Category', () => {
-    test('shows error toast when add fails', async () => {
+    test('shows error toast when add fails and preserves input', async () => {
+      
+      vi.mocked(noteService.addCategoryToNote).mockRejectedValue(
+        new Error('API error')
+      );
 
-    });
+      const mockOnUpdate = vi.fn();
+      render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
 
-    test('preserves category input when add fails', async () => {
+      const categoryInput = screen.getByPlaceholderText(/add category/i);
+      fireEvent.change(categoryInput, { target: { value: 'personal' } });
 
+      //uses ^ and $ to match ONLY Add button (not for e.g. "Add category")
+      fireEvent.click(screen.getByRole('button', { name: /^add$/i }));
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith(
+          'Failed to add category. Please try again.'
+        );
+      });
+
+      expect(categoryInput).toHaveValue('personal');
+      expect(mockOnUpdate).not.toHaveBeenCalled();
     });
 
     test('logs error to console when add fails', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const mockError = new Error('Network error');
 
+      vi.mocked(noteService.addCategoryToNote).mockRejectedValue(mockError);
+
+      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+
+      const categoryInput = screen.getByPlaceholderText(/add category/i);
+      fireEvent.change(categoryInput, { target: { value: 'personal' } });
+      fireEvent.click(screen.getByRole('button', { name: /^add$/i }));
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'NoteCard - Add category failed:',
+          mockError
+        );
+      });
+
+      consoleErrorSpy.mockRestore();
     });
 
     test('adds category successfully', async () => {
+      const mockUpdatedNote = {
+        ...mockNote,
+        categories: [
+          ...(mockNote.categories || []),
+          {
+          id: 2, 
+          name: 'personal',
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01'),
+        }],
+      };
 
+      vi.mocked(noteService.addCategoryToNote).mockResolvedValue(mockUpdatedNote);
+
+      const mockOnUpdate = vi.fn();
+      render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
+
+      const categoryInput = screen.getByPlaceholderText(/add category/i);
+      fireEvent.change(categoryInput, { target: { value: 'personal' } });
+      fireEvent.click(screen.getByRole('button', { name: /^add$/i } ));
+
+      await waitFor(() => {
+        expect(categoryInput).toHaveValue('');
+        expect(mockOnUpdate).toHaveBeenCalledTimes(1);
+      });
     });
   });
 
   describe('Remove Category', () => {
     test('shows error toast when remove fails', async () => {
+      
+      vi.mocked(noteService.removeCategoryFromNote).mockRejectedValue(
+        new Error('API error')
+      );
 
+      const mockOnUpdate = vi.fn();
+      render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /work ×/i }));
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith(
+          'Failed to remove category. Please try again.'
+        );
+      });
+
+      expect(mockOnUpdate).not.toHaveBeenCalled();
     });
 
     test('logs error to console when remove fails', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const mockError = new Error('Network error');
 
+      vi.mocked(noteService.removeCategoryFromNote).mockRejectedValue(mockError);
+
+      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /work ×/i }));
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'NoteCard - Remove category failed:',
+          mockError
+        )
+      });
+
+      consoleErrorSpy.mockRestore();
     });
 
     test('removes category successfully', async () => {
 
+      vi.mocked(noteService.removeCategoryFromNote).mockResolvedValue({
+        ...mockNote,
+        categories: []
+      });
+
+      const mockOnUpdate = vi.fn();
+      render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /work ×/i }));
+
+      await waitFor(() => {
+        expect(noteService.removeCategoryFromNote).toHaveBeenCalledWith(
+          1,      //mockNote.id
+          'work'  //category name
+        );
+        expect(mockOnUpdate).toHaveBeenCalledTimes(1);
+      });    
     });
   });
 });
