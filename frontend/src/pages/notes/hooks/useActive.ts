@@ -16,7 +16,7 @@ export function useActive(){
         : await getActiveNotes();
       setNotes(response);
     } catch (error) {
-      console.error("useActive - Get active notes failed:", error);
+      console.error("useActive - Get active notes failed.", error);
       toast.error("Failed to load notes. Please try again.");
     };
   }, [category]);
@@ -30,7 +30,7 @@ export function useActive(){
       await archiveNote(id);
       await handleFetch();
     } catch(error) {
-      console.error("useActive - Archive note failed:", error);
+      console.error("useActive - Archive note failed.", error);
       toast.error("Failed to archive note. Please try again.");
     };
   };
@@ -40,7 +40,7 @@ export function useActive(){
       await deleteNote(id);
       await handleFetch();
     } catch(error) {
-      console.error("useActive - Delete note failed:", error);
+      console.error("useActive - Delete note failed.", error);
       toast.error("Failed to delete note. Please try again.");
     };
   };

@@ -94,7 +94,7 @@ export default function NoteCard({
                     await removeCategoryFromNote(note.id, c.name);
                     onUpdated?.();
                   } catch(error) {
-                    console.error("NoteCard - Remove category failed:", error);
+                    console.error("NoteCard - Remove category failed.", error);
                     toast.error("Failed to remove category. Please try again.");
                   };
                 }}
@@ -118,7 +118,7 @@ export default function NoteCard({
               setNewCategory("");
               onUpdated?.();
             } catch(error) {
-              console.error("NoteCard - Add category failed:", error);
+              console.error("NoteCard - Add category failed.", error);
               toast.error("Failed to add category. Please try again.");
             };
           }}

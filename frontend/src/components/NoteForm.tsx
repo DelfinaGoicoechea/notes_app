@@ -19,7 +19,7 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       
       onCreated();
     } catch(error) {
-      console.error("NoteForm - Create note failed:", error);
+      console.error("NoteForm - Create note failed.", error);
       toast.error("Failed to create note. Please try again.");
     };
   };

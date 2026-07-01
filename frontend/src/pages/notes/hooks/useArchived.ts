@@ -21,7 +21,7 @@ export function useArchived(){
         : await getArchivedNotes();
       setNotes(response);
     } catch (error) {
-      console.error("useArchived - Get archived notes failed:", error);
+      console.error("useArchived - Get archived notes failed.", error);
       toast.error("Failed to load archived notes. Please try again.");
     };
   }, [category]);
@@ -35,7 +35,7 @@ export function useArchived(){
       await unarchiveNote(id);
       await handleFetch();
     } catch(error) {
-      console.error("useArchived - Unarchive note failed:", error);
+      console.error("useArchived - Unarchive note failed.", error);
       toast.error("Failed to unarchive note. Please try again.");
     };
   };
@@ -45,7 +45,7 @@ export function useArchived(){
       await deleteNote(id);
       await handleFetch();
     } catch(error) {
-      console.error("useArchived - Delete note failed:", error);
+      console.error("useArchived - Delete note failed.", error);
       toast.error("Failed to delete note. Please try again.");
     };
   };
