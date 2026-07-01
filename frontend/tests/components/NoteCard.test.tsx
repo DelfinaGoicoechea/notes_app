@@ -102,7 +102,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'NoteCard - Update note failed:',
+          'NoteCard - Update note failed.',
           mockError
         );
       });
@@ -182,7 +182,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'NoteCard - Add category failed:',
+          'NoteCard - Add category failed.',
           mockError
         );
       });
@@ -252,7 +252,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'NoteCard - Remove category failed:',
+          'NoteCard - Remove category failed.',
           mockError
         )
       });

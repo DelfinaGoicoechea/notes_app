@@ -29,7 +29,7 @@ export default function NoteCard({
       setIsEditing(false);
       onUpdated?.();
     } catch(error) {
-      console.error("NoteCard - Update note failed:", error);
+      console.error("NoteCard - Update note failed.", error);
       toast.error("Failed to save note changes. Please try again.");
     };
   };

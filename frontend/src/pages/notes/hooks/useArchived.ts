@@ -22,12 +22,18 @@ export function useArchived(){
       setNotes(response);
     } catch (error) {
       console.error("useArchived - Get archived notes failed.", error);
-      toast.error("Failed to load archived notes. Please try again.");
+      toast.error("Failed to load archived notes. Please try again.", { 
+        id: 'load-archived-notes-error' 
+      });
     };
   }, [category]);
 
   useEffect(() => {
-    handleFetch();
+    const debounceTimer = setTimeout(() => {
+      handleFetch();
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
   }, [handleFetch]);
 
   const handleUnarchive = async (id: number) => {

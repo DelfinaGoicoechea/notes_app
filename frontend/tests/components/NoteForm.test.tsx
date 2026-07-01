@@ -108,7 +108,7 @@ describe('NoteForm - Error Handling (FE-003)', () => {
     // ASSERT: Verify console.error was called with the error
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'NoteForm - Create note failed:',
+        'NoteForm - Create note failed.',
         mockError
       );
     });

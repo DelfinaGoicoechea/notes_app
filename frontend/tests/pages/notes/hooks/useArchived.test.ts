@@ -45,7 +45,8 @@ describe('useArchived Hook - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith(
-          'Failed to load archived notes. Please try again.'
+          'Failed to load archived notes. Please try again.',
+          { id: 'load-archived-notes-error' }
         );
       });
     });
@@ -60,7 +61,7 @@ describe('useArchived Hook - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'useArchived - Get archived notes failed:',
+          'useArchived - Get archived notes failed.',
           mockError
         );
       });
@@ -131,7 +132,7 @@ describe('useArchived Hook - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'useArchived - Unarchive note failed:',
+          'useArchived - Unarchive note failed.',
           mockError
         );
       });
@@ -198,7 +199,7 @@ describe('useArchived Hook - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'useArchived - Delete note failed:',
+          'useArchived - Delete note failed.',
           mockError
         );
       });

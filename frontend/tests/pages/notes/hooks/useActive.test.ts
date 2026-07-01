@@ -48,7 +48,8 @@ describe('useActive Hook - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith(
-          'Failed to load notes. Please try again.'
+          'Failed to load notes. Please try again.',
+          { id: 'load-active-notes-error' }
         );
       });
     });
@@ -63,7 +64,7 @@ describe('useActive Hook - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'useActive - Get active notes failed:',
+          'useActive - Get active notes failed.',
           mockError
         );
       });
@@ -134,7 +135,7 @@ describe('useActive Hook - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'useActive - Archive note failed:',
+          'useActive - Archive note failed.',
           mockError
         );
       });
@@ -201,7 +202,7 @@ describe('useActive Hook - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'useActive - Delete note failed:',
+          'useActive - Delete note failed.',
           mockError
         );
       });
