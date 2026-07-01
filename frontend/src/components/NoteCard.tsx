@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Note } from "../types/note";
 import { addCategoryToNote, removeCategoryFromNote, updateNote } from "../services/notes.service";
+import toast from "react-hot-toast";
 
 interface NoteCardProps {
   note: Note;
@@ -22,11 +23,15 @@ export default function NoteCard({
 
   const handleSave: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+    try {
+      await updateNote(note.id, { title, content });
 
-    await updateNote(note.id, { title, content });
-
-    setIsEditing(false);
-    onUpdated?.();
+      setIsEditing(false);
+      onUpdated?.();
+    } catch(error) {
+      console.error("NoteCard - Update note failed.", error);
+      toast.error("Failed to save note changes. Please try again.");
+    };
   };
 
   if (isEditing) {
@@ -85,8 +90,13 @@ export default function NoteCard({
               <button
                 key={c.id}
                 onClick={async () => {
-                  await removeCategoryFromNote(note.id, c.name);
-                  onUpdated?.();
+                  try {
+                    await removeCategoryFromNote(note.id, c.name);
+                    onUpdated?.();
+                  } catch(error) {
+                    console.error("NoteCard - Remove category failed.", error);
+                    toast.error("Failed to remove category. Please try again.");
+                  };
                 }}
                 className="border rounded-full px-2 py-0.5 text-xs hover:bg-gray-100 transition"
                 title="Remove category"
@@ -102,9 +112,15 @@ export default function NoteCard({
             e.preventDefault();
             const trimmed = newCategory.trim();
             if (!trimmed) return;
-            await addCategoryToNote(note.id, trimmed);
-            setNewCategory("");
-            onUpdated?.();
+
+            try {
+              await addCategoryToNote(note.id, trimmed);
+              setNewCategory("");
+              onUpdated?.();
+            } catch(error) {
+              console.error("NoteCard - Add category failed.", error);
+              toast.error("Failed to add category. Please try again.");
+            };
           }}
           className="flex gap-2"
         >

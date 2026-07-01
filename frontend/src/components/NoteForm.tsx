@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { createNote } from "../services/notes.service";
+import toast from "react-hot-toast";
+
 interface NoteFormProps {
   onCreated: () => void;
 }
@@ -10,13 +12,16 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
 
   const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-
-    await createNote({ title, content });
-
-    setTitle("");
-    setContent("");
-
-    onCreated();
+    try {
+      await createNote({ title, content });
+      setTitle("");
+      setContent("");
+      
+      onCreated();
+    } catch(error) {
+      console.error("NoteForm - Create note failed.", error);
+      toast.error("Failed to create note. Please try again.");
+    };
   };
 
   return (

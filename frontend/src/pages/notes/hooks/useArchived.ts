@@ -6,6 +6,7 @@ import {
   getArchivedNotesByCategory,
   unarchiveNote,
 } from "../../../services/notes.service";
+import toast from "react-hot-toast";
 
 
 export function useArchived(){
@@ -19,23 +20,40 @@ export function useArchived(){
         ? await getArchivedNotesByCategory(trimmed)
         : await getArchivedNotes();
       setNotes(response);
-    } catch (err) {
-      console.error("Failed to fetch archived notes", err);
-    }
+    } catch (error) {
+      console.error("useArchived - Get archived notes failed.", error);
+      toast.error("Failed to load archived notes. Please try again.", { 
+        id: 'load-archived-notes-error' 
+      });
+    };
   }, [category]);
 
   useEffect(() => {
-    handleFetch();
+    const debounceTimer = setTimeout(() => {
+      handleFetch();
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
   }, [handleFetch]);
 
-  const handleArchive = async (id: number) => {
-    await unarchiveNote(id);
-    await handleFetch();
+  const handleUnarchive = async (id: number) => {
+    try {
+      await unarchiveNote(id);
+      await handleFetch();
+    } catch(error) {
+      console.error("useArchived - Unarchive note failed.", error);
+      toast.error("Failed to unarchive note. Please try again.");
+    };
   };
 
   const handleDelete = async (id: number) => {
-    await deleteNote(id);
-    await handleFetch();
+    try {
+      await deleteNote(id);
+      await handleFetch();
+    } catch(error) {
+      console.error("useArchived - Delete note failed.", error);
+      toast.error("Failed to delete note. Please try again.");
+    };
   };
 
   const handleRefetch = () => {
@@ -44,7 +62,7 @@ export function useArchived(){
 
   return {
     notes,
-    handleArchive,
+    handleUnarchive,
     handleDelete,
     handleRefetch,
     category,
