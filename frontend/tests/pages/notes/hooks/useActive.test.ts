@@ -99,7 +99,7 @@ describe('useActive Hook - Error Handling (FE-003)', () => {
     test('shows error toast when archive fails', async () => {
       vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
       vi.mocked(notesService.archiveNote).mockRejectedValue(
-        new Error('Archived failed')
+        new Error('Archive failed')
       );
 
       const { result } = renderHook(() => useActive());
@@ -119,7 +119,7 @@ describe('useActive Hook - Error Handling (FE-003)', () => {
 
     test('logs error to console when archive fails', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const mockError = new Error('Archived failed');
+      const mockError = new Error('Archive failed');
 
       vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
       vi.mocked(notesService.archiveNote).mockRejectedValue(mockError);
