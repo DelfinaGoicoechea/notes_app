@@ -146,10 +146,11 @@ export default function NoteCard({
           className="flex gap-2"
         >
           <input
-            className="border rounded-md px-3 py-1.5 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            className="border rounded-md px-3 py-1.5 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Add category (e.g. work)"
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
+            disabled={isAddingCategory}
           />
           <button
             type="submit"
