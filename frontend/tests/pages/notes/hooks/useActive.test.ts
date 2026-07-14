@@ -211,3 +211,246 @@ describe('useActive Hook - Error Handling (FE-003)', () => {
     });
   });
 });
+
+describe('useActive Hook - Loading States (FE-004)', () => {
+  const mockNotes = [
+    {
+      id: 1,
+      title: 'Test Note',
+      content: 'Test content',
+      archived: false,
+      categories: [],
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+    {
+      id: 2,
+      title: 'Another Note',
+      content: 'Another content',
+      archived: false,
+      categories: [],
+      createdAt: new Date('2024-01-02'),
+      updatedAt: new Date('2024-01-02'),
+    }
+  ];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('Initial Fetch Loading State', () => {
+    test('shows loading indicator when initially fetching active notes', async () => {
+      // ARRANGE: Mock API to delay response
+      vi.mocked(notesService.getActiveNotes).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve(mockNotes), 100))
+      );
+
+      // ACT: Render the hook
+      const { result } = renderHook(() => useActive());
+
+      // ASSERT: isLoading should become true during fetch
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(true);
+      });
+
+      // Wait for fetch to complete
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.notes).toEqual(mockNotes);
+      });
+    });
+
+    test('shows loading state when filtering by category', async () => {
+      // ARRANGE: Mock both endpoints
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+      vi.mocked(notesService.getActiveNotesByCategory).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve([mockNotes[0]]), 100))
+      );
+
+      // ACT: Render hook and set category
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      // Change category to trigger filtered fetch
+      result.current.setCategory('work');
+
+      // ASSERT: Should show loading during debounce and fetch
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(true);
+      });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.notes).toEqual([mockNotes[0]]);
+      });
+    });
+  });
+
+  describe('Archive Loading State', () => {
+    test('sets archivingNoteId during archive operation', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+      vi.mocked(notesService.archiveNote).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve({ ...mockNotes[0], archived: true }), 100))
+      );
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toHaveLength(2);
+      });
+
+      // ACT: Archive note with id 1
+      const archivePromise = result.current.handleArchive(1);
+
+      // ASSERT: archivingNoteId should be set to 1
+      await waitFor(() => {
+        expect(result.current.archivingNoteId).toBe(1);
+      });
+
+      await archivePromise;
+
+      // After completion, should be null
+      await waitFor(() => {
+        expect(result.current.archivingNoteId).toBe(null);
+      });
+    });
+
+    test('clears archivingNoteId even if archive fails', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+      vi.mocked(notesService.archiveNote).mockRejectedValue(
+        new Error('Network error')
+      );
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toHaveLength(2);
+      });
+
+      // ACT: Try to archive (will fail)
+      await result.current.handleArchive(1);
+
+      // ASSERT: archivingNoteId should be cleared after error
+      await waitFor(() => {
+        expect(result.current.archivingNoteId).toBe(null);
+      });
+    });
+
+    test('prevents duplicate archive operations while one is in flight', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+      vi.mocked(notesService.archiveNote).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve({ ...mockNotes[0], archived: true }), 100))
+      );
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toHaveLength(2);
+      });
+
+      // ACT: Try to archive the same note twice
+      result.current.handleArchive(1);
+      
+      await waitFor(() => {
+        expect(result.current.archivingNoteId).toBe(1);
+      });
+
+      // Component should check this state to disable button
+      expect(result.current.archivingNoteId).toBe(1);
+    });
+  });
+
+  describe('Delete Loading State', () => {
+    test('sets deletingNoteId during delete operation', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+      vi.mocked(notesService.deleteNote).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve(undefined), 100))
+      );
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toHaveLength(2);
+      });
+
+      // ACT: Delete note with id 2
+      const deletePromise = result.current.handleDelete(2);
+
+      // ASSERT: deletingNoteId should be set to 2
+      await waitFor(() => {
+        expect(result.current.deletingNoteId).toBe(2);
+      });
+
+      await deletePromise;
+
+      // After completion, should be null
+      await waitFor(() => {
+        expect(result.current.deletingNoteId).toBe(null);
+      });
+    });
+
+    test('clears deletingNoteId even if delete fails', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+      vi.mocked(notesService.deleteNote).mockRejectedValue(
+        new Error('Delete failed')
+      );
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toHaveLength(2);
+      });
+
+      // ACT: Try to delete (will fail)
+      await result.current.handleDelete(2);
+
+      // ASSERT: deletingNoteId should be cleared after error
+      await waitFor(() => {
+        expect(result.current.deletingNoteId).toBe(null);
+      });
+    });
+  });
+
+  describe('Multiple Simultaneous Operations', () => {
+    test('can track different operations on different notes simultaneously', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+      vi.mocked(notesService.archiveNote).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve({ ...mockNotes[0], archived: true }), 150))
+      );
+      vi.mocked(notesService.deleteNote).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve(undefined), 150))
+      );
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toHaveLength(2);
+      });
+
+      // ACT: Start archive on note 1 and delete on note 2 simultaneously
+      result.current.handleArchive(1);
+      result.current.handleDelete(2);
+
+      // ASSERT: Both operations should be tracked
+      await waitFor(() => {
+        expect(result.current.archivingNoteId).toBe(1);
+        expect(result.current.deletingNoteId).toBe(2);
+      });
+
+      // Wait for both to complete
+      await waitFor(() => {
+        expect(result.current.archivingNoteId).toBe(null);
+        expect(result.current.deletingNoteId).toBe(null);
+      }, { timeout: 3000 });
+    });
+  });
+});
