@@ -4,7 +4,17 @@ import { useArchived } from "./hooks/useArchived";
 
 
 export const ArchivedNotesPage = () => {
-  const {notes, handleUnarchive, handleDelete, handleRefetch, category, setCategory} = useArchived();
+  const {
+    notes,
+    handleUnarchive,
+    handleDelete,
+    handleRefetch,
+    category,
+    setCategory,
+    isLoading,
+    unarchivingNoteId,
+    deletingNoteId
+  } = useArchived();
 
   return (
     <Notes 
@@ -16,6 +26,9 @@ export const ArchivedNotesPage = () => {
       handleRefetch={handleRefetch}
       category={category}
       setCategory={setCategory}
+      isLoading={isLoading}
+      archivingNoteId={unarchivingNoteId}
+      deletingNoteId={deletingNoteId}
     />
   )
 }

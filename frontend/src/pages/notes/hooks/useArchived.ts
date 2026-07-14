@@ -12,8 +12,12 @@ import toast from "react-hot-toast";
 export function useArchived(){
   const [notes, setNotes] = useState<Note[]>([]);
   const [category, setCategory] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [unarchivingNoteId, setUnarchivingNoteId] = useState<number | null>(null);
+  const [deletingNoteId, setDeletingNoteId] = useState<number | null>(null);
 
   const handleFetch = useCallback(async () => {
+    setIsLoading(true);
     try {
       const trimmed = category.trim();
       const response = trimmed
@@ -25,6 +29,8 @@ export function useArchived(){
       toast.error("Failed to load archived notes. Please try again.", { 
         id: 'load-archived-notes-error' 
       });
+    } finally {
+      setIsLoading(false);
     };
   }, [category]);
 
@@ -37,22 +43,28 @@ export function useArchived(){
   }, [handleFetch]);
 
   const handleUnarchive = async (id: number) => {
+    setUnarchivingNoteId(id);
     try {
       await unarchiveNote(id);
       await handleFetch();
     } catch(error) {
       console.error("useArchived - Unarchive note failed.", error);
       toast.error("Failed to unarchive note. Please try again.");
+    } finally {
+      setUnarchivingNoteId(null);
     };
   };
 
   const handleDelete = async (id: number) => {
+    setDeletingNoteId(id);
     try {
       await deleteNote(id);
       await handleFetch();
     } catch(error) {
       console.error("useArchived - Delete note failed.", error);
       toast.error("Failed to delete note. Please try again.");
+    } finally {
+      setDeletingNoteId(null);
     };
   };
 
@@ -67,5 +79,8 @@ export function useArchived(){
     handleRefetch,
     category,
     setCategory,
+    isLoading,
+    unarchivingNoteId,
+    deletingNoteId,
   };
 }

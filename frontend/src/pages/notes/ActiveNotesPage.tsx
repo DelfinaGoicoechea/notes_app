@@ -4,7 +4,17 @@ import { useActive } from "./hooks/useActive"
 
 
 export const ActiveNotesPage = () => {
-  const {notes, handleArchive, handleDelete, handleRefetch, category, setCategory} = useActive();
+  const {
+    notes,
+    handleArchive,
+    handleDelete,
+    handleRefetch,
+    category,
+    setCategory,
+    isLoading,
+    archivingNoteId,
+    deletingNoteId
+  } = useActive();
 
   return (
     <Notes 
@@ -16,6 +26,9 @@ export const ActiveNotesPage = () => {
       handleRefetch={handleRefetch}
       category={category}
       setCategory={setCategory}
+      isLoading={isLoading}
+      archivingNoteId={archivingNoteId}
+      deletingNoteId={deletingNoteId}
     />
   )
 }
