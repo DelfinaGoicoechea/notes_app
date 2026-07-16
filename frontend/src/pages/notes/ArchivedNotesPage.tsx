@@ -13,7 +13,9 @@ export const ArchivedNotesPage = () => {
     setCategory,
     isLoading,
     unarchivingNoteId,
-    deletingNoteId
+    deletingNoteId,
+    search,
+    setSearch
   } = useArchived();
 
   return (
@@ -29,6 +31,8 @@ export const ArchivedNotesPage = () => {
       isLoading={isLoading}
       archivingNoteId={unarchivingNoteId}
       deletingNoteId={deletingNoteId}
+      search={search}
+      setSearch={setSearch}
     />
   )
 }

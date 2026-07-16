@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Note } from "../../../types/note";
-import { archiveNote, deleteNote, getActiveNotes, getActiveNotesByCategory } from "../../../services/notes.service";
+import { archiveNote, deleteNote, getActiveNotes } from "../../../services/notes.service";
 import toast from "react-hot-toast";
 
 
@@ -8,16 +8,17 @@ export function useActive(){
   const [notes, setNotes] = useState<Note[]>([]);
   const [category, setCategory] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [archivingNoteId, setArchivingNoteId] = useState<number | null>(null);  //stores note's ID
-  const [deletingNoteId, setDeletingNoteId] = useState<number | null>(null);  //stores note's ID
+  const [archivingNoteId, setArchivingNoteId] = useState<number | null>(null);
+  const [deletingNoteId, setDeletingNoteId] = useState<number | null>(null); 
+  const [search, setSearch] = useState<string>("");
 
   const handleFetch = useCallback(async () => {
     setIsLoading(true);
     try {
-      const trimmed = category.trim();
-      const response = trimmed
-        ? await getActiveNotesByCategory(trimmed)
-        : await getActiveNotes();
+      const trimmedCategory = category.trim() || undefined;
+      const trimmedSearch = search.trim() || undefined;
+          
+      const response = await getActiveNotes(trimmedCategory, trimmedSearch);
       setNotes(response);
     } catch (error) {
       console.error("useActive - Get active notes failed.", error);
@@ -27,7 +28,7 @@ export function useActive(){
     } finally {
       setIsLoading(false);
     };
-  }, [category]);
+  }, [category, search]);
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -76,5 +77,7 @@ export function useActive(){
     isLoading,
     archivingNoteId,
     deletingNoteId,
+    search,
+    setSearch,
   };
 }
