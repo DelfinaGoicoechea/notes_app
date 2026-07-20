@@ -9,6 +9,7 @@ This directory contains comprehensive test summaries for completed tickets. Each
 | Ticket | Feature | Tests Added | Status | Summary |
 |--------|---------|-------------|--------|---------|
 | [FE-004](./FE-004-loading-states.md) | Loading States Across All Async Operations | 23 tests | ✅ Complete | Comprehensive loading state implementation with spinners, disabled states, and duplicate submission prevention |
+| [FE-005](./FE-005-search-functionality.md) | Note Title and Content Search | 77 tests | ✅ Complete | Full-text search with debouncing, combined filtering, result counts, and contextual empty states |
 
 ---
 
@@ -33,8 +34,6 @@ When you complete a new ticket with tests:
    - Test Results (pass/fail counts)
    - New Tests Added (organized by file)
    - Acceptance Criteria Coverage
-   - Test Patterns Used
-   - Running the Tests
    - Key Testing Decisions
 
 4. **Update this README:**
@@ -59,12 +58,6 @@ Create new summaries using this structure:
 
 ## Acceptance Criteria Coverage
 [Table mapping AC to tests]
-
-## Test Patterns Used
-[Patterns and approaches]
-
-## Running the Tests
-[Commands to run these specific tests]
 
 ## Key Testing Decisions
 [Important implementation notes]
@@ -99,4 +92,4 @@ npm run test:ui
 
 ---
 
-*Last Updated: Tuesday, July 14, 2026*
+*Last Updated: Monday, July 20, 2026*
