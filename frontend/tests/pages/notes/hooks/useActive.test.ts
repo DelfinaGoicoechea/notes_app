@@ -261,27 +261,37 @@ describe('useActive Hook - Loading States (FE-004)', () => {
     });
 
     test('shows loading state when filtering by category', async () => {
-      // ARRANGE: Mock both endpoints
-      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
-      vi.mocked(notesService.getActiveNotesByCategory).mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve([mockNotes[0]]), 100))
+      // ARRANGE: Mock getActiveNotes with delayed response  
+      vi.mocked(notesService.getActiveNotes).mockImplementation(
+        async (...args) => {
+          // First call (no params) - initial load, return quickly
+          if (!args[0] && !args[1]) {
+            return mockNotes;
+          }
+          // Second call (with category) - simulate slow network
+          await new Promise(resolve => setTimeout(resolve, 300));
+          return [mockNotes[0]];
+        }
       );
 
-      // ACT: Render hook and set category
+      // ACT: Render hook
       const { result } = renderHook(() => useActive());
 
+      // Wait for initial load
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
+        expect(result.current.notes).toHaveLength(2);
       });
 
       // Change category to trigger filtered fetch
       result.current.setCategory('work');
 
-      // ASSERT: Should show loading during debounce and fetch
+      // ASSERT: Should show loading after debounce triggers
       await waitFor(() => {
         expect(result.current.isLoading).toBe(true);
-      });
+      }, { timeout: 1500 });
 
+      // Should complete and show filtered results
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
         expect(result.current.notes).toEqual([mockNotes[0]]);
@@ -292,7 +302,7 @@ describe('useActive Hook - Loading States (FE-004)', () => {
   describe('Archive Loading State', () => {
     test('sets archivingNoteId during archive operation', async () => {
       // ARRANGE
-      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+      vi.mocked(notesService.getActiveNotes).mockImplementation(async () => mockNotes);
       vi.mocked(notesService.archiveNote).mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve({ ...mockNotes[0], archived: true }), 100))
       );
@@ -451,6 +461,330 @@ describe('useActive Hook - Loading States (FE-004)', () => {
         expect(result.current.archivingNoteId).toBe(null);
         expect(result.current.deletingNoteId).toBe(null);
       }, { timeout: 3000 });
+    });
+  });
+});
+
+describe('useActive Hook - Search Functionality (FE-005)', () => {
+  const mockNotes = [
+    {
+      id: 1,
+      title: 'Meeting Notes',
+      content: 'Discuss project timeline',
+      archived: false,
+      categories: [],
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+    {
+      id: 2,
+      title: 'Budget Report',
+      content: 'Q1 financial summary',
+      archived: false,
+      categories: [],
+      createdAt: new Date('2024-01-02'),
+      updatedAt: new Date('2024-01-02'),
+    }
+  ];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('Search State Management', () => {
+    test('initializes with empty search string', () => {
+      // ACT
+      const { result } = renderHook(() => useActive());
+
+      // ASSERT
+      expect(result.current.search).toBe('');
+    });
+
+    test('updates search state when setSearch is called', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toBeDefined();
+      });
+
+      // ACT
+      result.current.setSearch('meeting');
+
+      // ASSERT
+      await waitFor(() => {
+        expect(result.current.search).toBe('meeting');
+      });
+    });
+
+    test('exports search and setSearch in return object', () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+      const { result } = renderHook(() => useActive());
+
+      // ASSERT
+      expect(result.current).toHaveProperty('search');
+      expect(result.current).toHaveProperty('setSearch');
+      expect(typeof result.current.setSearch).toBe('function');
+    });
+  });
+
+  describe('Search Filtering', () => {
+    test('fetches notes with search parameter when search is set', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue([mockNotes[0]]);
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toBeDefined();
+      });
+
+      // ACT: Set search
+      result.current.setSearch('meeting');
+
+      // ASSERT: Should call API with search parameter after debounce
+      await waitFor(() => {
+        expect(notesService.getActiveNotes).toHaveBeenCalledWith(
+          undefined, // category
+          'meeting'  // search
+        );
+      }, { timeout: 1000 });
+    });
+
+    test('trims search value before sending to API', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toBeDefined();
+      });
+
+      // ACT: Set search with leading/trailing spaces
+      result.current.setSearch('  budget  ');
+
+      // ASSERT: Should trim before calling API
+      await waitFor(() => {
+        expect(notesService.getActiveNotes).toHaveBeenCalledWith(
+          undefined,
+          'budget'
+        );
+      }, { timeout: 1000 });
+    });
+
+    test('sends undefined when search is empty string', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toBeDefined();
+      });
+
+      // ACT: Set search to empty
+      result.current.setSearch('');
+
+      // ASSERT: Should send undefined, not empty string
+      await waitFor(() => {
+        expect(notesService.getActiveNotes).toHaveBeenCalledWith(
+          undefined,
+          undefined
+        );
+      }, { timeout: 1000 });
+    });
+
+    test('sends undefined when search is only whitespace', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toBeDefined();
+      });
+
+      // ACT: Set search to whitespace only
+      result.current.setSearch('   ');
+
+      // ASSERT: Should trim to empty and send undefined
+      await waitFor(() => {
+        expect(notesService.getActiveNotes).toHaveBeenCalledWith(
+          undefined,
+          undefined
+        );
+      }, { timeout: 1000 });
+    });
+  });
+
+  describe('Combined Search and Category Filtering', () => {
+    test('sends both category and search parameters when both are set', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue([mockNotes[0]]);
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toBeDefined();
+      });
+
+      // ACT: Set both filters
+      result.current.setCategory('work');
+      result.current.setSearch('meeting');
+
+      // ASSERT: Should call API with both parameters (AND logic)
+      await waitFor(() => {
+        expect(notesService.getActiveNotes).toHaveBeenCalledWith(
+          'work',
+          'meeting'
+        );
+      }, { timeout: 1000 });
+    });
+
+    test('category filter continues working with empty search', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue([mockNotes[0]]);
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toBeDefined();
+      });
+
+      // ACT: Set only category
+      result.current.setCategory('work');
+
+      // ASSERT: Should call API with category only
+      await waitFor(() => {
+        expect(notesService.getActiveNotes).toHaveBeenCalledWith(
+          'work',
+          undefined
+        );
+      }, { timeout: 1000 });
+    });
+
+    test('clearing search while category is set maintains category filter', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toBeDefined();
+      });
+
+      // Set both
+      result.current.setCategory('work');
+      result.current.setSearch('meeting');
+
+      await waitFor(() => {
+        expect(notesService.getActiveNotes).toHaveBeenCalledWith('work', 'meeting');
+      }, { timeout: 1000 });
+
+      vi.clearAllMocks();
+
+      // ACT: Clear search
+      result.current.setSearch('');
+
+      // ASSERT: Should still have category
+      await waitFor(() => {
+        expect(notesService.getActiveNotes).toHaveBeenCalledWith(
+          'work',
+          undefined
+        );
+      }, { timeout: 1000 });
+    });
+  });
+
+  describe('Search Debouncing', () => {
+    test('debounces search input with 300ms delay', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toBeDefined();
+      });
+
+      vi.clearAllMocks();
+
+      // ACT: Type search quickly (simulate user typing)
+      result.current.setSearch('m');
+      result.current.setSearch('me');
+      result.current.setSearch('mee');
+      result.current.setSearch('meet');
+      result.current.setSearch('meeti');
+      result.current.setSearch('meetin');
+      result.current.setSearch('meeting');
+
+      // ASSERT: Should not call API immediately
+      expect(notesService.getActiveNotes).not.toHaveBeenCalled();
+
+      // Wait for debounce
+      await waitFor(() => {
+        expect(notesService.getActiveNotes).toHaveBeenCalledTimes(1);
+        expect(notesService.getActiveNotes).toHaveBeenCalledWith(
+          undefined,
+          'meeting'
+        );
+      }, { timeout: 1000 });
+    });
+
+    test('debounces both category and search changes together', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockResolvedValue(mockNotes);
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.notes).toBeDefined();
+      });
+
+      vi.clearAllMocks();
+
+      // ACT: Change both quickly
+      result.current.setCategory('work');
+      result.current.setSearch('meeting');
+
+      // ASSERT: Should debounce and call once with final values
+      await waitFor(() => {
+        expect(notesService.getActiveNotes).toHaveBeenCalledTimes(1);
+        expect(notesService.getActiveNotes).toHaveBeenCalledWith(
+          'work',
+          'meeting'
+        );
+      }, { timeout: 1000 });
+    });
+  });
+
+  describe('Search with Loading States', () => {
+    test('shows loading state when search triggers fetch', async () => {
+      // ARRANGE
+      vi.mocked(notesService.getActiveNotes).mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve(mockNotes), 100))
+      );
+
+      const { result } = renderHook(() => useActive());
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      // ACT: Set search
+      result.current.setSearch('budget');
+
+      // ASSERT: Should show loading during fetch
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(true);
+      }, { timeout: 1000 });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      }, { timeout: 1500 });
     });
   });
 });

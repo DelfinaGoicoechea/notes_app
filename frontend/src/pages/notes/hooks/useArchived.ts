@@ -3,7 +3,6 @@ import type { Note } from "../../../types/note";
 import {
   deleteNote,
   getArchivedNotes,
-  getArchivedNotesByCategory,
   unarchiveNote,
 } from "../../../services/notes.service";
 import toast from "react-hot-toast";
@@ -15,14 +14,15 @@ export function useArchived(){
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [unarchivingNoteId, setUnarchivingNoteId] = useState<number | null>(null);
   const [deletingNoteId, setDeletingNoteId] = useState<number | null>(null);
+  const [search, setSearch] = useState<string>("");
 
   const handleFetch = useCallback(async () => {
     setIsLoading(true);
     try {
-      const trimmed = category.trim();
-      const response = trimmed
-        ? await getArchivedNotesByCategory(trimmed)
-        : await getArchivedNotes();
+      const trimmedCategory = category.trim() || undefined;
+      const trimmedSearch = search.trim() || undefined;
+
+      const response = await getArchivedNotes(trimmedCategory, trimmedSearch);
       setNotes(response);
     } catch (error) {
       console.error("useArchived - Get archived notes failed.", error);
@@ -32,7 +32,7 @@ export function useArchived(){
     } finally {
       setIsLoading(false);
     };
-  }, [category]);
+  }, [category, search]);
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -82,5 +82,7 @@ export function useArchived(){
     isLoading,
     unarchivingNoteId,
     deletingNoteId,
+    search,
+    setSearch,
   };
 }

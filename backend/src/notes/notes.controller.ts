@@ -13,13 +13,19 @@ export class NotesController {
   }
 
   @Get()
-  findAll(@Query('category') category?: string) {
-    return this.notesService.findAll(category);
+  findAll(
+    @Query('category') category?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.notesService.findAll(category, search);
   }
 
   @Get('archived')
-  findArchived(@Query('category') category?: string) {
-    return this.notesService.findArchived(category);
+  findArchived(
+    @Query('category') category?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.notesService.findArchived(category, search);
   }
 
   @Patch(':id')

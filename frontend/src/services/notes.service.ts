@@ -1,27 +1,20 @@
 import { api } from "../api/api";
 import type { Note } from "../types/note";
 
-export const getActiveNotes = async (): Promise<Note[]> => {
-  const res = await api.get("/notes");
-  return res.data;
-};
-
-export const getActiveNotesByCategory = async (
-  category: string
+export const getActiveNotes = async (
+  category?: string,
+  search?: string
 ): Promise<Note[]> => {
-  const res = await api.get("/notes", { params: { category } });
+  const res = await api.get("/notes", { params: { category, search } });
   return res.data;
 };
 
-export const getArchivedNotes = async (): Promise<Note[]> => {
-  const res = await api.get("/notes/archived");
-  return res.data;
-};
 
-export const getArchivedNotesByCategory = async (
-  category: string
+export const getArchivedNotes = async (
+  category?: string,
+  search?: string
 ): Promise<Note[]> => {
-  const res = await api.get("/notes/archived", { params: { category } });
+  const res = await api.get("/notes/archived", { params: { category, search } });
   return res.data;
 };
 

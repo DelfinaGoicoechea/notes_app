@@ -15,6 +15,8 @@ interface NotesT {
   isLoading: boolean;
   archivingNoteId: number | null;
   deletingNoteId: number | null;
+  search: string;
+  setSearch: (value: string) => void;
 }
 
 export function Notes({
@@ -29,25 +31,40 @@ export function Notes({
   isLoading,
   archivingNoteId,
   deletingNoteId,
+  search,
+  setSearch,
 }: NotesT) {
   const getEmptyStateMessage = () => {
-    if (category !== "") {
+    const hasCategory = category && category.trim() !== "";
+    const hasSearch = search && search.trim() !== "";
+
+    if (hasCategory && hasSearch) {
+      return {
+        headline: "No notes match your search and category filter",
+        subtext: "Try searching something else or a different category"
+      };
+    } else if (hasCategory) {
       return {
         headline: "No notes match your filter",
-        subtext: "Try a different category or clear your filter."
+        subtext: "Try a different category or clear your filter"
+      };
+    } else if (hasSearch) {
+      return {
+        headline: "No notes match your search",
+        subtext: "Try something different or clear your search"
       };
     }
 
     if (showForm) {
       return {
         headline: "No notes yet",
-        subtext: "Create your first note above to get started."
+        subtext: "Create your first note above to get started"
       };
-    }
+    };
 
     return {
       headline: "No archived notes",
-      subtext: "Notes you archive will appear here. Archive a note to keep your workspace clean without deleting it."
+      subtext: "Notes you archive will appear here. Archive a note to keep your workspace clean without deleting it"
     };
   };
 
@@ -98,10 +115,26 @@ export function Notes({
       {showForm && <NoteForm onCreated={handleRefetch} />}
 
       <div className="flex gap-2">
+        <input 
+          className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300"
+          placeholder="Search notes by title or content..."
+          value={search || ""}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <button
+          type="button"
+          onClick={() => setSearch("")}
+          className="border rounded-md px-3 py-2 text-sm hover:bg-gray-100 transition"
+        >
+          Clear
+        </button>
+      </div>
+
+      <div className="flex gap-2">
         <input
           className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300"
           placeholder="Filter by category (prefix, case-insensitive)"
-          value={category}
+          value={category || ""}
           onChange={(e) => setCategory(e.target.value)}
         />
         <button
@@ -112,6 +145,12 @@ export function Notes({
           Clear
         </button>
       </div>
+
+      {(search || category) && notes.length > 0 && (
+        <div className="flex gap-2 text-sm">
+          {notes.length} {notes.length === 1 ? 'note' : 'notes'} found
+        </div>
+      )} 
 
       {renderContent()}
     </div>

@@ -13,7 +13,9 @@ export const ActiveNotesPage = () => {
     setCategory,
     isLoading,
     archivingNoteId,
-    deletingNoteId
+    deletingNoteId,
+    search,
+    setSearch
   } = useActive();
 
   return (
@@ -29,6 +31,8 @@ export const ActiveNotesPage = () => {
       isLoading={isLoading}
       archivingNoteId={archivingNoteId}
       deletingNoteId={deletingNoteId}
+      search={search}
+      setSearch={setSearch}
     />
   )
 }

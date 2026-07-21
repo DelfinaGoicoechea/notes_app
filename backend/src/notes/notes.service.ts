@@ -21,7 +21,7 @@ export class NotesService {
     return this.noteRepository.save(note);
   }
 
-  findAll(categoryName?: string) {
+  findAll(categoryName?: string, search?: string) {
     const qb = this.noteRepository
       .createQueryBuilder('note')
       .leftJoinAndSelect('note.categories', 'category')
@@ -31,6 +31,7 @@ export class NotesService {
       .addOrderBy('note.updatedAt', 'DESC');
 
     this.applyCategoryPrefixFilter(qb, categoryName);
+    this.applySearchFilter(qb, search);
 
     return qb.getMany();
   }
@@ -61,7 +62,7 @@ export class NotesService {
     return this.noteRepository.save(note);
   }
 
-  findArchived(categoryName?: string) {
+  findArchived(categoryName?: string, search?: string) {
     const qb = this.noteRepository
       .createQueryBuilder('note')
       .leftJoinAndSelect('note.categories', 'category')
@@ -71,6 +72,7 @@ export class NotesService {
       .addOrderBy('note.updatedAt', 'DESC');
 
     this.applyCategoryPrefixFilter(qb, categoryName);
+    this.applySearchFilter(qb, search);
 
     return qb.getMany();
   }
@@ -91,6 +93,20 @@ export class NotesService {
     qb.andWhere('category.name LIKE :categoryPrefix', {
       categoryPrefix: `${prefix}%`,
     });
+  }
+
+  /** Case-insensitive search across note title and content */
+  private applySearchFilter(
+    qb: SelectQueryBuilder<Note>,
+    search?: string,
+  ) {
+    const trimmedSearch = search?.trim();
+    if (!trimmedSearch) return;
+    
+    qb.andWhere(
+      '(LOWER(note.title) LIKE :search OR LOWER(note.content) LIKE :search)',
+      { search: `%${trimmedSearch.toLowerCase()}%` }
+    );
   }
 
   private async getOrCreateCategoryByName(name: string) {
