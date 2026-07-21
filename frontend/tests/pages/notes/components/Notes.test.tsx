@@ -218,13 +218,13 @@ describe('Notes Component - Search UI (FE-005)', () => {
       expect(screen.getByText(/2 notes found/i)).toBeInTheDocument();
     });
 
-    test('shows "0 notes found" when filters return no results', () => {
+    test('hides result count when filters return no results', () => {
       // ACT
       render(<Notes {...defaultProps} search="nonexistent" notes={[]} />);
 
       // ASSERT: Should show count as "0 notes found"
-      expect(screen.getByText(/0 notes found/i)).toBeInTheDocument();
-      // And also show empty state message
+      expect(screen.queryByText(/0 notes found/i)).not.toBeInTheDocument();
+      // Should show empty state message
       expect(screen.getByText(/no notes match your search/i)).toBeInTheDocument();
     });
   });
