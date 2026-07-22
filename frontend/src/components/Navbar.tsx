@@ -5,7 +5,7 @@ const getNavLinkClassName = ({ isActive }: {isActive: boolean}) =>
 
 export default function Navbar() {
   return (
-    <nav className="border-b">
+    <nav className="border-b" aria-label="Main navigation">
       <div className="max-w-xl mx-auto flex gap-4 px-4 py-3 text-sm">
         <NavLink
           to="/"

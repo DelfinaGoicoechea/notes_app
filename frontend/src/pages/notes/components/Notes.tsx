@@ -115,7 +115,9 @@ export function Notes({
       {showForm && <NoteForm onCreated={handleRefetch} />}
 
       <div className="flex gap-2">
-        <input 
+        <label htmlFor="search-input" className="sr-only">Search notes</label>
+        <input
+          id="search-input"
           className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300"
           placeholder="Search notes by title or content..."
           value={search || ""}
@@ -125,13 +127,16 @@ export function Notes({
           type="button"
           onClick={() => setSearch("")}
           className="border rounded-md px-3 py-2 text-sm hover:bg-gray-100 transition"
+          aria-label="Clear search"
         >
           Clear
         </button>
       </div>
 
       <div className="flex gap-2">
+        <label htmlFor="category-input" className="sr-only">Filter by category</label>
         <input
+          id="category-input"
           className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300"
           placeholder="Filter by category (prefix, case-insensitive)"
           value={category || ""}
@@ -141,6 +146,7 @@ export function Notes({
           type="button"
           onClick={() => setCategory("")}
           className="border px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition"
+          aria-label="Clear category filter"
         >
           Clear
         </button>

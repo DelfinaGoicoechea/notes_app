@@ -34,7 +34,9 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       onSubmit={handleSubmit}
       className="max-w-xl flex flex-col gap-4"
     >
+      <label htmlFor="note-title" className="sr-only">Note title</label>
       <input
+        id="note-title"
         className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
         placeholder="Title"
         value={title}
@@ -42,7 +44,9 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
         disabled={isCreating}
       />
 
+      <label htmlFor="note-content" className="sr-only">Note content</label>
       <textarea
+        id="note-content"
         className="border rounded-md px-3 py-2 text-sm min-h-[120px] resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
         placeholder="Content"
         value={content}
