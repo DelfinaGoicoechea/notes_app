@@ -45,11 +45,25 @@ export default function NoteCard({
     };
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => { 
+    if(e.key === 'Escape') {
+      e.preventDefault();
+      handleCancel();
+    };
+  };
+
+  const handleCancel = (): void => {
+    setTitle(note.title);
+    setContent(note.content);
+    setIsEditing(false);
+  };
+
   if (isEditing) {
     return (
       <form
         onSubmit={handleSave}
         className="border rounded-md p-4 flex flex-col gap-3"
+        onKeyDown={handleKeyDown}
       >
         <label htmlFor="edit-note-title" className="sr-only">Note title</label>
         <input
@@ -81,7 +95,7 @@ export default function NoteCard({
 
           <button
             type="button"
-            onClick={() => setIsEditing(false)}
+            onClick={handleCancel}
             className="border px-3 py-1.5 rounded-md text-sm hover:bg-gray-100 transition"
           >
             Cancel
