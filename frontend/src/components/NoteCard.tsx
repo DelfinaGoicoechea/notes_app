@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Note } from "../types/note";
 import { addCategoryToNote, removeCategoryFromNote, updateNote } from "../services/notes.service";
 import toast from "react-hot-toast";
@@ -28,6 +28,9 @@ export default function NoteCard({
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isAddingCategory, setIsAddingCategory] = useState<boolean>(false);
   const [removingCategoryId, setRemovingCategoryId] = useState<number | null>(null);
+  
+  const titleRef = useRef<HTMLInputElement>(null);
+  const editBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!isEditing) {
@@ -35,6 +38,16 @@ export default function NoteCard({
       setContent(note.content);
     }
   }, [note.title, note.content, isEditing]);
+
+  useEffect(() => {
+    if(isEditing) {
+      titleRef.current?.focus();
+    
+      return () => {
+        editBtnRef.current?.focus();
+      };
+    };
+  }, [isEditing]);
 
   const handleSave: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -79,6 +92,7 @@ export default function NoteCard({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={isSaving}
+          ref={titleRef}
         />
 
         <label htmlFor="edit-note-content" className="sr-only">Note content</label>
@@ -195,6 +209,7 @@ export default function NoteCard({
         <button
           onClick={() => setIsEditing(true)}
           className="border px-3 py-1.5 rounded-md hover:bg-gray-100 transition"
+          ref={editBtnRef}
         >
           Edit
         </button>
