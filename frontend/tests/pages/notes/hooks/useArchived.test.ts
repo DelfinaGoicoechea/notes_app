@@ -72,7 +72,7 @@ describe('useArchived Hook - Error Handling (FE-003)', () => {
 
 
   describe('Unarchive Note (handleUnarchive)', () => {
-    test('Unarchives note and refetches', async () => {
+    test('Unarchives note and removes it from local state', async () => {
       const mockUnarchivedNote = { ...mockNotes[0], archived: false}
 
       vi.mocked(notesService.getArchivedNotes).mockResolvedValue(mockNotes);
@@ -90,7 +90,8 @@ describe('useArchived Hook - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(notesService.unarchiveNote).toHaveBeenCalledWith(1);
-        expect(notesService.getArchivedNotes).toHaveBeenCalledTimes(2); //initial + refetch
+        expect(result.current.notes).toHaveLength(0);
+        expect(notesService.getArchivedNotes).toHaveBeenCalledTimes(1); // initial only
       });
     });
 
@@ -143,7 +144,7 @@ describe('useArchived Hook - Error Handling (FE-003)', () => {
 
 
   describe('Delete Note (handleDelete)', () => {
-    test('deletes note and refetches', async () => {
+    test('deletes note and removes it from local state', async () => {
       vi.mocked(notesService.getArchivedNotes).mockResolvedValue(mockNotes);
       vi.mocked(notesService.deleteNote).mockResolvedValue(undefined);
 
@@ -157,7 +158,8 @@ describe('useArchived Hook - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(notesService.deleteNote).toHaveBeenCalledTimes(1);
-        expect(notesService.getArchivedNotes).toHaveBeenCalledTimes(2);
+        expect(result.current.notes).toHaveLength(0);
+        expect(notesService.getArchivedNotes).toHaveBeenCalledTimes(1); // initial only
       });
     });
 

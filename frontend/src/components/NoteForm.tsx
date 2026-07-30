@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { createNote } from "../services/notes.service";
+import type { Note } from "../types/note";
 import toast from "react-hot-toast";
 import Spinner from "./Spinner";
 
 interface NoteFormProps {
-  onCreated: () => void;
+  onCreated: (createdNote: Note) => void;
 }
 
 export default function NoteForm({ onCreated }: NoteFormProps) {
@@ -16,11 +17,11 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
     e.preventDefault();
     setIsCreating(true);
     try {
-      await createNote({ title, content });
+      const createdNote = await createNote({ title, content });
       setTitle("");
       setContent("");
       
-      onCreated();
+      onCreated(createdNote);
     } catch(error) {
       console.error("NoteForm - Create note failed.", error);
       toast.error("Failed to create note. Please try again.");

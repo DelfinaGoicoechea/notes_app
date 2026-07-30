@@ -46,7 +46,7 @@ export function useArchived(){
     setUnarchivingNoteId(id);
     try {
       await unarchiveNote(id);
-      await handleFetch();
+      setNotes((prev) => prev.filter((note) => note.id !== id));
     } catch(error) {
       console.error("useArchived - Unarchive note failed.", error);
       toast.error("Failed to unarchive note. Please try again.");
@@ -59,7 +59,7 @@ export function useArchived(){
     setDeletingNoteId(id);
     try {
       await deleteNote(id);
-      await handleFetch();
+      setNotes((prev) => prev.filter((note) => note.id !== id));
     } catch(error) {
       console.error("useArchived - Delete note failed.", error);
       toast.error("Failed to delete note. Please try again.");
@@ -68,15 +68,17 @@ export function useArchived(){
     };
   };
 
-  const handleRefetch = () => {
-    handleFetch();
-  }
+  const handleNoteUpdated = (updatedNote: Note) => {
+    setNotes((prev) =>
+      prev.map((note) => (note.id === updatedNote.id ? updatedNote : note))
+    );
+  };
 
   return {
     notes,
     handleUnarchive,
     handleDelete,
-    handleRefetch,
+    handleNoteUpdated,
     category,
     setCategory,
     isLoading,

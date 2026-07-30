@@ -36,8 +36,12 @@ export class NotesService {
     return qb.getMany();
   }
 
-  update(id: number, updateNoteDto: UpdateNoteDto) {
-    return this.noteRepository.update(id, updateNoteDto);
+  async update(id: number, updateNoteDto: UpdateNoteDto) {
+    await this.noteRepository.update(id, updateNoteDto);
+    return this.noteRepository.findOne({
+      where: { id },
+      relations: { categories: true },
+    });
   }
 
   remove(id: number) {

@@ -9,7 +9,8 @@ interface NotesT {
   notes: Note[];
   handleArchive: (id: number) => void;
   handleDelete: (id: number) => void;
-  handleRefetch: () => void;
+  handleNoteUpdated: (note: Note) => void;
+  handleNoteCreated?: (note: Note) => void;
   category: string;
   setCategory: (value: string) => void;
   isLoading: boolean;
@@ -25,7 +26,8 @@ export function Notes({
   notes,
   handleArchive,
   handleDelete,
-  handleRefetch,
+  handleNoteUpdated,
+  handleNoteCreated,
   category,
   setCategory,
   isLoading,
@@ -69,7 +71,9 @@ export function Notes({
   };
 
   const renderContent = () => {
-    if (isLoading) {
+    // Only replace the list with a spinner on the first load (no notes yet).
+    // Keeping existing notes mounted during filter/search avoids scroll jumps.
+    if (isLoading && notes.length === 0) {
       return (
         <div className="flex justify-center items-center py-12">
           <Spinner />
@@ -77,7 +81,7 @@ export function Notes({
       );
     }
 
-    if (notes.length === 0) {
+    if (!isLoading && notes.length === 0) {
       const emptyState = getEmptyStateMessage();
       return (
         <div className="bg-gray-50 border border-gray-200 rounded-md py-12 px-6 text-center">
@@ -92,14 +96,14 @@ export function Notes({
     }
 
     return (
-      <div className="flex flex-col gap-4">
+      <div className={`flex flex-col gap-4 ${isLoading ? "opacity-60" : ""}`}>
         {notes.map((note) => (
           <NoteCard
             key={note.id}
             note={note}
             onArchive={handleArchive}
             onDelete={handleDelete}
-            onUpdated={handleRefetch}
+            onUpdated={handleNoteUpdated}
             archivingNoteId={archivingNoteId}
             deletingNoteId={deletingNoteId}
           />
@@ -112,7 +116,7 @@ export function Notes({
     <div className="max-w-xl mx-auto px-4 py-6 flex flex-col gap-6">
       <h1 className="text-xl font-semibold">{title}</h1>
 
-      {showForm && <NoteForm onCreated={handleRefetch} />}
+      {showForm && handleNoteCreated && <NoteForm onCreated={handleNoteCreated} />}
 
       <div className="flex gap-2">
         <label htmlFor="search-input" className="sr-only">Search notes</label>

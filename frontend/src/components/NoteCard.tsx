@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Note } from "../types/note";
 import { addCategoryToNote, removeCategoryFromNote, updateNote } from "../services/notes.service";
 import toast from "react-hot-toast";
@@ -8,7 +8,7 @@ interface NoteCardProps {
   note: Note;
   onArchive?: (id: number) => void;
   onDelete?: (id: number) => void;
-  onUpdated?: () => void;
+  onUpdated?: (updatedNote: Note) => void;
   archivingNoteId?: number | null;
   deletingNoteId?: number | null;
 }
@@ -29,14 +29,21 @@ export default function NoteCard({
   const [isAddingCategory, setIsAddingCategory] = useState<boolean>(false);
   const [removingCategoryId, setRemovingCategoryId] = useState<number | null>(null);
 
+  useEffect(() => {
+    if (!isEditing) {
+      setTitle(note.title);
+      setContent(note.content);
+    }
+  }, [note.title, note.content, isEditing]);
+
   const handleSave: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      await updateNote(note.id, { title, content });
+      const updatedNote = await updateNote(note.id, { title, content });
 
       setIsEditing(false);
-      onUpdated?.();
+      onUpdated?.(updatedNote);
     } catch(error) {
       console.error("NoteCard - Update note failed.", error);
       toast.error("Failed to save note changes. Please try again.");
@@ -125,8 +132,8 @@ export default function NoteCard({
                 onClick={async () => {
                   setRemovingCategoryId(c.id);
                   try {
-                    await removeCategoryFromNote(note.id, c.name);
-                    onUpdated?.();
+                    const updatedNote = await removeCategoryFromNote(note.id, c.name);
+                    onUpdated?.(updatedNote);
                   } catch(error) {
                     console.error("NoteCard - Remove category failed.", error);
                     toast.error("Failed to remove category. Please try again.");
@@ -152,9 +159,9 @@ export default function NoteCard({
             if (!trimmed) return;
             setIsAddingCategory(true);
             try {
-              await addCategoryToNote(note.id, trimmed);
+              const updatedNote = await addCategoryToNote(note.id, trimmed);
               setNewCategory("");
-              onUpdated?.();
+              onUpdated?.(updatedNote);
             } catch(error) {
               console.error("NoteCard - Add category failed.", error);
               toast.error("Failed to add category. Please try again.");
@@ -208,7 +215,7 @@ export default function NoteCard({
           <button
             onClick={() => onDelete(note.id)}
             disabled={deletingNoteId === note.id}
-            className="border px-3 py-1.5 rounded-md hover:bg-red-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border outline-red-400 px-3 py-1.5 rounded-md hover:bg-red-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {deletingNoteId === note.id ? "Deleting..." : "Delete"}
           </button>

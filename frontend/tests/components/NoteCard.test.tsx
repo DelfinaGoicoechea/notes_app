@@ -132,9 +132,8 @@ describe('NoteCard - Error Handling (FE-003)', () => {
       fireEvent.click(screen.getByRole('button', { name: /save/i } ));
 
       await waitFor(() => {
-        expect(titleInput).toHaveValue('Updated Title');
-        expect(contentInput).toHaveValue('Updated content');
         expect(mockOnUpdate).toHaveBeenCalledTimes(1);
+        expect(mockOnUpdate).toHaveBeenCalledWith(mockUpdatedNote);
       });
 
       //did exit edit mode
@@ -215,6 +214,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
       await waitFor(() => {
         expect(categoryInput).toHaveValue('');
         expect(mockOnUpdate).toHaveBeenCalledTimes(1);
+        expect(mockOnUpdate).toHaveBeenCalledWith(mockUpdatedNote);
       });
     });
   });
@@ -229,7 +229,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
       const mockOnUpdate = vi.fn();
       render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
 
-      fireEvent.click(screen.getByRole('button', { name: /work ×/i }));
+      fireEvent.click(screen.getByRole('button', { name: /remove work category/i }));
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith(
@@ -248,7 +248,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
       render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
 
-      fireEvent.click(screen.getByRole('button', { name: /work ×/i }));
+      fireEvent.click(screen.getByRole('button', { name: /remove work category/i }));
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -262,15 +262,16 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
     test('removes category successfully', async () => {
 
-      vi.mocked(noteService.removeCategoryFromNote).mockResolvedValue({
+      const mockUpdatedNote = {
         ...mockNote,
         categories: []
-      });
+      };
+      vi.mocked(noteService.removeCategoryFromNote).mockResolvedValue(mockUpdatedNote);
 
       const mockOnUpdate = vi.fn();
       render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
 
-      fireEvent.click(screen.getByRole('button', { name: /work ×/i }));
+      fireEvent.click(screen.getByRole('button', { name: /remove work category/i }));
 
       await waitFor(() => {
         expect(noteService.removeCategoryFromNote).toHaveBeenCalledWith(
@@ -278,6 +279,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
           'work'  //category name
         );
         expect(mockOnUpdate).toHaveBeenCalledTimes(1);
+        expect(mockOnUpdate).toHaveBeenCalledWith(mockUpdatedNote);
       });    
     });
   });
@@ -593,7 +595,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
       render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
 
       // ACT
-      const categoryButton = screen.getByRole('button', { name: /work ×/i });
+      const categoryButton = screen.getByRole('button', { name: /remove work category/i });
       fireEvent.click(categoryButton);
 
       // ASSERT
@@ -622,8 +624,8 @@ describe('NoteCard - Loading States (FE-004)', () => {
       render(<NoteCard note={multiCategoryNote} onUpdated={vi.fn()} />);
 
       // ACT: Remove 'work' category
-      const workButton = screen.getByRole('button', { name: /work ×/i });
-      const personalButton = screen.getByRole('button', { name: /personal ×/i });
+      const workButton = screen.getByRole('button', { name: /remove work category/i });
+      const personalButton = screen.getByRole('button', { name: /remove personal category/i });
       
       fireEvent.click(workButton);
 
