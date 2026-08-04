@@ -2,6 +2,7 @@ import type { Note } from "../../../types/note";
 import NoteCard from "../../../components/NoteCard";
 import NoteForm from "../../../components/NoteForm";
 import Spinner from "../../../components/Spinner";
+import { useRef } from "react";
 
 interface NotesT {
   title: string;
@@ -36,6 +37,24 @@ export function Notes({
   search,
   setSearch,
 }: NotesT) {
+  const searchInpRef = useRef<HTMLInputElement>(null);
+
+  const deferFocus = (ref: React.RefObject<HTMLElement | null>) => {
+    requestAnimationFrame(() => {
+      ref.current?.focus();
+    })
+  };
+
+  const handleDeleteWithFocus = (id: number) => {
+    handleDelete(id);
+    deferFocus(searchInpRef);
+  };
+
+  const handleArchiveWithFocus = (id: number) => {
+    handleArchive(id);
+    deferFocus(searchInpRef);
+  };
+
   const getEmptyStateMessage = () => {
     const hasCategory = category && category.trim() !== "";
     const hasSearch = search && search.trim() !== "";
@@ -72,7 +91,6 @@ export function Notes({
 
   const renderContent = () => {
     // Only replace the list with a spinner on the first load (no notes yet).
-    // Keeping existing notes mounted during filter/search avoids scroll jumps.
     if (isLoading && notes.length === 0) {
       return (
         <div className="flex justify-center items-center py-12">
@@ -101,8 +119,8 @@ export function Notes({
           <NoteCard
             key={note.id}
             note={note}
-            onArchive={handleArchive}
-            onDelete={handleDelete}
+            onArchive={handleArchiveWithFocus}
+            onDelete={handleDeleteWithFocus}
             onUpdated={handleNoteUpdated}
             archivingNoteId={archivingNoteId}
             deletingNoteId={deletingNoteId}
@@ -126,6 +144,7 @@ export function Notes({
           placeholder="Search notes by title or content..."
           value={search || ""}
           onChange={(e) => setSearch(e.target.value)}
+          ref={searchInpRef}
         />
         <button
           type="button"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { createNote } from "../services/notes.service";
 import type { Note } from "../types/note";
 import toast from "react-hot-toast";
@@ -13,6 +13,8 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
   const [content, setContent] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
+  const titleRef = useRef<HTMLInputElement>(null);
+
   const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setIsCreating(true);
@@ -22,6 +24,9 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       setContent("");
       
       onCreated(createdNote);
+      requestAnimationFrame(() => {
+        titleRef.current?.focus();
+      });
     } catch(error) {
       console.error("NoteForm - Create note failed.", error);
       toast.error("Failed to create note. Please try again.");
@@ -43,6 +48,7 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         disabled={isCreating}
+        ref={titleRef}
       />
 
       <label htmlFor="note-content" className="sr-only">Note content</label>

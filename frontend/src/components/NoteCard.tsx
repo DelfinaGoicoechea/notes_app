@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { Note } from "../types/note";
 import { addCategoryToNote, removeCategoryFromNote, updateNote } from "../services/notes.service";
 import toast from "react-hot-toast";
@@ -31,12 +31,13 @@ export default function NoteCard({
   
   const titleRef = useRef<HTMLInputElement>(null);
   const editBtnRef = useRef<HTMLButtonElement>(null);
+  const categoryRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isEditing) {
       setTitle(note.title);
       setContent(note.content);
-    }
+    };
   }, [note.title, note.content, isEditing]);
 
   useEffect(() => {
@@ -76,6 +77,12 @@ export default function NoteCard({
     setTitle(note.title);
     setContent(note.content);
     setIsEditing(false);
+  };
+
+  const deferFocus = (ref: React.RefObject<HTMLElement | null>) => {
+    requestAnimationFrame(() => {
+      ref.current?.focus();
+    })
   };
 
   if (isEditing) {
@@ -148,6 +155,8 @@ export default function NoteCard({
                   try {
                     const updatedNote = await removeCategoryFromNote(note.id, c.name);
                     onUpdated?.(updatedNote);
+
+                    deferFocus(categoryRef);
                   } catch(error) {
                     console.error("NoteCard - Remove category failed.", error);
                     toast.error("Failed to remove category. Please try again.");
@@ -176,6 +185,8 @@ export default function NoteCard({
               const updatedNote = await addCategoryToNote(note.id, trimmed);
               setNewCategory("");
               onUpdated?.(updatedNote);
+              
+              deferFocus(categoryRef);
             } catch(error) {
               console.error("NoteCard - Add category failed.", error);
               toast.error("Failed to add category. Please try again.");
@@ -193,6 +204,7 @@ export default function NoteCard({
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
             disabled={isAddingCategory}
+            ref={categoryRef}
           />
           <button
             type="submit"
