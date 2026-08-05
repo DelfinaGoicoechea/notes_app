@@ -48,12 +48,13 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       <label htmlFor="note-title" className="sr-only">Note title</label>
       <input
         id="note-title"
+        ref={titleRef}
         className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
         placeholder="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         disabled={isCreating}
-        ref={titleRef}
+        autoComplete="off"
       />
 
       <label htmlFor="note-content" className="sr-only">Note content</label>

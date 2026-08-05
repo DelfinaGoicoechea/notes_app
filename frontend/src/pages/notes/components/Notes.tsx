@@ -2,7 +2,7 @@ import type { Note } from "../../../types/note";
 import NoteCard from "../../../components/NoteCard";
 import NoteForm from "../../../components/NoteForm";
 import Spinner from "../../../components/Spinner";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 interface NotesT {
   title: string;
@@ -37,22 +37,40 @@ export function Notes({
   search,
   setSearch,
 }: NotesT) {
+  const [statusMessage, setStatusMessage] = useState<string>("");
   const searchInpRef = useRef<HTMLInputElement>(null);
 
   const deferFocus = (ref: React.RefObject<HTMLElement | null>) => {
     requestAnimationFrame(() => {
       ref.current?.focus();
-    })
+    });
   };
 
   const handleDeleteWithFocus = (id: number) => {
     handleDelete(id);
     deferFocus(searchInpRef);
+
+    setTimeout(() => {
+      setStatusMessage("Note deleted");
+      setTimeout(() => setStatusMessage(""), 3000);
+    }, 100);
   };
 
   const handleArchiveWithFocus = (id: number) => {
+    const note = notes.find(n => n.id === id);
+    const isCurrentlyArchived = note?.archived || false;
+
     handleArchive(id);
     deferFocus(searchInpRef);
+
+    setTimeout(() => {
+      const message = isCurrentlyArchived 
+        ? "Note unarchived" 
+        : "Note archived";
+
+      setStatusMessage(message);
+      setTimeout(() => setStatusMessage(""), 3000);
+    }, 100);
   };
 
   const getEmptyStateMessage = () => {
@@ -133,6 +151,14 @@ export function Notes({
   return (
     <div className="max-w-xl mx-auto px-4 py-6 flex flex-col gap-6">
       <h1 className="text-xl font-semibold">{title}</h1>
+
+      <div 
+        role="status"
+        aria-atomic="true"
+        className="sr-only"
+      > 
+          {statusMessage}
+      </div>
 
       {showForm && handleNoteCreated && <NoteForm onCreated={handleNoteCreated} />}
 
