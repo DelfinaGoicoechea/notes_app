@@ -3,6 +3,7 @@ import { createNote } from "../services/notes.service";
 import type { Note } from "../types/note";
 import toast from "react-hot-toast";
 import Spinner from "./Spinner";
+import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
 
 interface NoteFormProps {
   onCreated: (createdNote: Note) => void;
@@ -14,6 +15,7 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
   const titleRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -35,9 +37,12 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
     };
   };
 
+  const handleTextareaKeyDown = createTextareaSubmitHandler(formRef);
+
   return (
     <form
       onSubmit={handleSubmit}
+      ref={formRef}
       className="max-w-xl flex flex-col gap-4"
     >
       <label htmlFor="note-title" className="sr-only">Note title</label>
@@ -59,6 +64,7 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         disabled={isCreating}
+        onKeyDown={handleTextareaKeyDown}
       />
 
       <button

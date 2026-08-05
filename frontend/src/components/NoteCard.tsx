@@ -3,6 +3,7 @@ import type { Note } from "../types/note";
 import { addCategoryToNote, removeCategoryFromNote, updateNote } from "../services/notes.service";
 import toast from "react-hot-toast";
 import Spinner from "./Spinner";
+import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
 
 interface NoteCardProps {
   note: Note;
@@ -32,6 +33,7 @@ export default function NoteCard({
   const titleRef = useRef<HTMLInputElement>(null);
   const editBtnRef = useRef<HTMLButtonElement>(null);
   const categoryRef = useRef<HTMLInputElement>(null);
+  const editFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (!isEditing) {
@@ -85,10 +87,13 @@ export default function NoteCard({
     })
   };
 
+  const handleTextareaKeyDown = createTextareaSubmitHandler(editFormRef);
+
   if (isEditing) {
     return (
       <form
         onSubmit={handleSave}
+        ref={editFormRef}
         className="border rounded-md p-4 flex flex-col gap-3"
         onKeyDown={handleKeyDown}
       >
@@ -109,6 +114,7 @@ export default function NoteCard({
           value={content}
           onChange={(e) => setContent(e.target.value)}
           disabled={isSaving}
+          onKeyDown={handleTextareaKeyDown}
         />
 
         <div className="flex gap-2">
