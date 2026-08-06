@@ -101,7 +101,7 @@ export default function NoteCard({
         <input
           id="edit-note-title"
           ref={titleRef}
-          className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={isSaving}
@@ -111,7 +111,7 @@ export default function NoteCard({
         <label htmlFor="edit-note-content" className="sr-only">Note content</label>
         <textarea
           id="edit-note-content"
-          className="border rounded-md px-3 py-2 text-sm min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="border rounded-md px-3 py-2 text-sm min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           disabled={isSaving}
@@ -122,7 +122,7 @@ export default function NoteCard({
           <button
             type="submit"
             disabled={isSaving}
-            className="bg-gray-900 text-white px-3 py-1.5 rounded-md text-sm hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gray-900 text-white px-3 py-1.5 rounded-md text-sm hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
           >
             {isSaving && <Spinner />}
             {isSaving ? 'Saving...' : 'Save'}
@@ -131,7 +131,7 @@ export default function NoteCard({
           <button
             type="button"
             onClick={handleCancel}
-            className="border px-3 py-1.5 rounded-md text-sm hover:bg-gray-100 transition"
+            className="border px-3 py-1.5 rounded-md text-sm hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
           >
             Cancel
           </button>
@@ -172,7 +172,7 @@ export default function NoteCard({
                   };
                 }}
                 disabled={removingCategoryId === c.id}
-                className="border rounded-full px-2 py-0.5 text-xs hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="border rounded-full px-2 py-0.5 text-xs hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
                 title="Remove category"
                 aria-label={`Remove ${c.name} category`}
               >
@@ -207,7 +207,7 @@ export default function NoteCard({
           <input
             id="add-category"
             ref={categoryRef}
-            className="border rounded-md px-3 py-1.5 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border rounded-md px-3 py-1.5 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
             placeholder="Add category (e.g. work)"
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
@@ -217,7 +217,7 @@ export default function NoteCard({
           <button
             type="submit"
             disabled={isAddingCategory}
-            className="border px-3 py-1.5 rounded-md text-sm hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border px-3 py-1.5 rounded-md text-sm hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
           >
             {isAddingCategory && <Spinner />}
             {isAddingCategory ? 'Adding...' : 'Add'}
@@ -229,7 +229,7 @@ export default function NoteCard({
         <button
           onClick={() => setIsEditing(true)}
           ref={editBtnRef}
-          className="border px-3 py-1.5 rounded-md hover:bg-gray-100 transition"
+          className="border px-3 py-1.5 rounded-md hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
         >
           Edit
         </button>
@@ -240,7 +240,7 @@ export default function NoteCard({
             onClick={() => onArchive(note.id)}
             disabled={archivingNoteId === note.id}
             aria-busy={archivingNoteId === note.id}
-            className="border px-3 py-1.5 rounded-md hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border px-3 py-1.5 rounded-md hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
           >
             {archivingNoteId === note.id
               ? (note.archived ? "Unarchiving..." : "Archiving...")
@@ -254,7 +254,7 @@ export default function NoteCard({
             onClick={() => onDelete(note.id)}
             disabled={deletingNoteId === note.id}
             aria-busy={deletingNoteId === note.id}
-            className="border outline-red-400 px-3 py-1.5 rounded-md hover:bg-red-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border px-3 py-1.5 rounded-md hover:bg-red-100 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
           >
             {deletingNoteId === note.id ? "Deleting..." : "Delete"}
           </button>

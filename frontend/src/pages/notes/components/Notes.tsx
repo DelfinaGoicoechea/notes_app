@@ -142,7 +142,7 @@ export function Notes({
       <h1 
         ref={headingRef} 
         tabIndex={-1} 
-        className="text-xl font-semibold"
+        className="text-xl font-semibold rounded-sm px-1 -mx-1 focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-gray-600 focus:ring-offset-1"
       >
         {title}
       </h1>
@@ -155,7 +155,7 @@ export function Notes({
         <label htmlFor="search-input" className="sr-only">Search notes</label>
         <input
           id="search-input"
-          className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 focus-visible:ring-gray-400"
           placeholder="Search notes by title or content..."
           value={search || ""}
           onChange={(e) => setSearch(e.target.value)}
@@ -163,7 +163,7 @@ export function Notes({
         <button
           type="button"
           onClick={() => setSearch("")}
-          className="border rounded-md px-3 py-2 text-sm hover:bg-gray-100 transition"
+          className="border rounded-md px-3 py-2 text-sm hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
           aria-label="Clear search"
         >
           Clear
@@ -174,7 +174,7 @@ export function Notes({
         <label htmlFor="category-input" className="sr-only">Filter by category</label>
         <input
           id="category-input"
-          className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300"
+          className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 focus-visible:ring-gray-400"
           placeholder="Filter by category (prefix, case-insensitive)"
           value={category || ""}
           onChange={(e) => setCategory(e.target.value)}
@@ -182,7 +182,7 @@ export function Notes({
         <button
           type="button"
           onClick={() => setCategory("")}
-          className="border px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition"
+          className="border px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
           aria-label="Clear category filter"
         >
           Clear
