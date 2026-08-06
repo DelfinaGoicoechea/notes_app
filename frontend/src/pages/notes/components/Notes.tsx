@@ -2,14 +2,15 @@ import type { Note } from "../../../types/note";
 import NoteCard from "../../../components/NoteCard";
 import NoteForm from "../../../components/NoteForm";
 import Spinner from "../../../components/Spinner";
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { useAnnounce } from "../../../hooks/useAnnounce";
 
 interface NotesT {
   title: string;
   showForm: boolean;
   notes: Note[];
-  handleArchive: (id: number) => void;
-  handleDelete: (id: number) => void;
+  handleArchive: (id: number) => Promise<boolean>;
+  handleDelete: (id: number) => Promise<boolean>;
   handleNoteUpdated: (note: Note) => void;
   handleNoteCreated?: (note: Note) => void;
   category: string;
@@ -37,40 +38,28 @@ export function Notes({
   search,
   setSearch,
 }: NotesT) {
-  const [statusMessage, setStatusMessage] = useState<string>("");
-  const searchInpRef = useRef<HTMLInputElement>(null);
 
-  const deferFocus = (ref: React.RefObject<HTMLElement | null>) => {
-    requestAnimationFrame(() => {
-      ref.current?.focus();
-    });
+  const { announce, Announcer } = useAnnounce();
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+
+  const handleDeleteWithFocus = async (id: number) => {
+    const isOk = await handleDelete(id);
+    if(!isOk) return;
+
+    headingRef.current?.focus();
+    announce("Note deleted");
   };
 
-  const handleDeleteWithFocus = (id: number) => {
-    handleDelete(id);
-    deferFocus(searchInpRef);
+  const handleArchiveWithFocus = async (id: number) => {
+    const note = notes.find((n) => n.id === id);
+    const isCurrentlyArchived = note?.archived ?? false;
 
-    setTimeout(() => {
-      setStatusMessage("Note deleted");
-      setTimeout(() => setStatusMessage(""), 3000);
-    }, 100);
-  };
+    const isOk = await handleArchive(id);
+    if(!isOk) return;
 
-  const handleArchiveWithFocus = (id: number) => {
-    const note = notes.find(n => n.id === id);
-    const isCurrentlyArchived = note?.archived || false;
-
-    handleArchive(id);
-    deferFocus(searchInpRef);
-
-    setTimeout(() => {
-      const message = isCurrentlyArchived 
-        ? "Note unarchived" 
-        : "Note archived";
-
-      setStatusMessage(message);
-      setTimeout(() => setStatusMessage(""), 3000);
-    }, 100);
+    headingRef.current?.focus();
+    announce(isCurrentlyArchived ? "Note unarchived" : "Note archived");
   };
 
   const getEmptyStateMessage = () => {
@@ -150,15 +139,15 @@ export function Notes({
 
   return (
     <div className="max-w-xl mx-auto px-4 py-6 flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">{title}</h1>
+      <h1 
+        ref={headingRef} 
+        tabIndex={-1} 
+        className="text-xl font-semibold"
+      >
+        {title}
+      </h1>
 
-      <div 
-        role="status"
-        aria-atomic="true"
-        className="sr-only"
-      > 
-          {statusMessage}
-      </div>
+      {Announcer}
 
       {showForm && handleNoteCreated && <NoteForm onCreated={handleNoteCreated} />}
 
@@ -170,7 +159,6 @@ export function Notes({
           placeholder="Search notes by title or content..."
           value={search || ""}
           onChange={(e) => setSearch(e.target.value)}
-          ref={searchInpRef}
         />
         <button
           type="button"

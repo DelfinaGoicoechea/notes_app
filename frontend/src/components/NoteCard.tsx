@@ -236,8 +236,10 @@ export default function NoteCard({
 
         {onArchive && (
           <button
+            type="button"
             onClick={() => onArchive(note.id)}
             disabled={archivingNoteId === note.id}
+            aria-busy={archivingNoteId === note.id}
             className="border px-3 py-1.5 rounded-md hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {archivingNoteId === note.id
@@ -248,8 +250,10 @@ export default function NoteCard({
 
         {onDelete && (
           <button
+            type="button"
             onClick={() => onDelete(note.id)}
             disabled={deletingNoteId === note.id}
+            aria-busy={deletingNoteId === note.id}
             className="border outline-red-400 px-3 py-1.5 rounded-md hover:bg-red-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {deletingNoteId === note.id ? "Deleting..." : "Delete"}

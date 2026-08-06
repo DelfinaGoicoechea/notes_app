@@ -37,27 +37,31 @@ export function useActive(){
     return () => clearTimeout(debounceTimer);
   }, [handleFetch]);
 
-  const handleArchive = async (id: number) => {
+  const handleArchive = async (id: number): Promise<boolean> => {
     setArchivingNoteId(id);
     try {
       await archiveNote(id);
       setNotes((prev) => prev.filter((note) => note.id !== id));
+      return true;
     } catch(error) {
       console.error("useActive - Archive note failed.", error);
       toast.error("Failed to archive note. Please try again.");
+      return false;
     } finally {
       setArchivingNoteId(null);
     };
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number): Promise<boolean> => {
     setDeletingNoteId(id);
     try {
       await deleteNote(id);
       setNotes((prev) => prev.filter((note) => note.id !== id));
+      return true;
     } catch(error) {
       console.error("useActive - Delete note failed.", error);
       toast.error("Failed to delete note. Please try again.");
+      return false;
     } finally {
       setDeletingNoteId(null);
     };
