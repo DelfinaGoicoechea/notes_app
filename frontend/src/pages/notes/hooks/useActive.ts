@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Note } from "../../../types/note";
 import { archiveNote, deleteNote, getActiveNotes } from "../../../services/notes.service";
-import toast from "react-hot-toast";
+import { notifyError } from "../../../a11y/announcer";
 
 
 export function useActive(){
@@ -22,7 +22,7 @@ export function useActive(){
       setNotes(response);
     } catch (error) {
       console.error("useActive - Get active notes failed.", error);
-      toast.error("Failed to load notes. Please try again.", { 
+      notifyError("Failed to load notes. Please try again.", { 
         id: 'load-active-notes-error' 
       });
     } finally {
@@ -45,7 +45,7 @@ export function useActive(){
       return true;
     } catch(error) {
       console.error("useActive - Archive note failed.", error);
-      toast.error("Failed to archive note. Please try again.");
+      notifyError("Failed to archive note. Please try again.");
       return false;
     } finally {
       setArchivingNoteId(null);
@@ -60,7 +60,7 @@ export function useActive(){
       return true;
     } catch(error) {
       console.error("useActive - Delete note failed.", error);
-      toast.error("Failed to delete note. Please try again.");
+      notifyError("Failed to delete note. Please try again.");
       return false;
     } finally {
       setDeletingNoteId(null);

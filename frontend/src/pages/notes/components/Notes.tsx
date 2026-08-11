@@ -3,7 +3,7 @@ import NoteCard from "../../../components/NoteCard";
 import NoteForm from "../../../components/NoteForm";
 import Spinner from "../../../components/Spinner";
 import { useRef } from "react";
-import { useAnnounce } from "../../../hooks/useAnnounce";
+import { announce } from "../../../a11y/announcer";
 
 interface NotesT {
   title: string;
@@ -39,7 +39,6 @@ export function Notes({
   setSearch,
 }: NotesT) {
 
-  const { announce, Announcer } = useAnnounce();
   const headingRef = useRef<HTMLHeadingElement>(null);
 
 
@@ -147,8 +146,6 @@ export function Notes({
         {title}
       </h1>
 
-      {Announcer}
-
       {showForm && handleNoteCreated && <NoteForm onCreated={handleNoteCreated} />}
 
       <div className="flex gap-2">
@@ -159,6 +156,7 @@ export function Notes({
           placeholder="Search notes by title or content..."
           value={search || ""}
           onChange={(e) => setSearch(e.target.value)}
+          autoComplete="off"
         />
         <button
           type="button"
@@ -178,6 +176,7 @@ export function Notes({
           placeholder="Filter by category (prefix, case-insensitive)"
           value={category || ""}
           onChange={(e) => setCategory(e.target.value)}
+          autoComplete="off"
         />
         <button
           type="button"

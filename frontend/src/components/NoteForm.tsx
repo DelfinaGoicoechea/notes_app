@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
 import { createNote } from "../services/notes.service";
 import type { Note } from "../types/note";
-import toast from "react-hot-toast";
 import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
+import { notifyError } from "../a11y/announcer";
 
 interface NoteFormProps {
   onCreated: (createdNote: Note) => void;
@@ -31,7 +31,7 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       });
     } catch(error) {
       console.error("NoteForm - Create note failed.", error);
-      toast.error("Failed to create note. Please try again.");
+      notifyError("Failed to create note. Please try again.");
     } finally {
       setIsCreating(false);
     };

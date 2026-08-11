@@ -1,24 +1,27 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import type { Politeness, Status } from "../types/announce";
 
 export function useAnnounce() {
-  const [status, setStatus] = useState<{ 
-    message: string, 
-    key: number 
-  }>({ message: "", key: 0 });
+  const [status, setStatus] = useState<Status>({ 
+    message: "", 
+    key: 0, 
+    politeness: "polite" 
+  });
 
-  const announce = (message: string) => {
-    setStatus((s) => ({message: "", key: s.key + 1}));
+  const announce = useCallback(
+    (message: string, politeness:Politeness = "polite") => {
+      setStatus((s) => ({message: "", key: s.key + 1, politeness}));
 
-    window.setTimeout(() => {
-      setStatus((s) => ({ ...s, message }));
-    }, 50);
-  };
+      window.setTimeout(() => {
+        setStatus((s) => ({ ...s, message }));
+      }, 50);
+  }, []);
 
   const Announcer = (
     <div
       key={status.key}
-      role="status"
-      aria-live="polite"
+      role={status.politeness === "assertive" ? "alert" : "status"}
+      aria-live={status.politeness}
       aria-atomic="true"
       className="sr-only"
     >

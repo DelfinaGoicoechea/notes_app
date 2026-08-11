@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { Note } from "../types/note";
 import { addCategoryToNote, removeCategoryFromNote, updateNote } from "../services/notes.service";
-import toast from "react-hot-toast";
 import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
+import { notifyError } from "../a11y/announcer";
 
 interface NoteCardProps {
   note: Note;
@@ -62,7 +62,7 @@ export default function NoteCard({
       onUpdated?.(updatedNote);
     } catch(error) {
       console.error("NoteCard - Update note failed.", error);
-      toast.error("Failed to save note changes. Please try again.");
+      notifyError("Failed to save note changes. Please try again.");
     } finally {
       setIsSaving(false);
     };
@@ -166,7 +166,7 @@ export default function NoteCard({
                     deferFocus(categoryRef);
                   } catch(error) {
                     console.error("NoteCard - Remove category failed.", error);
-                    toast.error("Failed to remove category. Please try again.");
+                    notifyError("Failed to remove category. Please try again.");
                   } finally {
                     setRemovingCategoryId(null);
                   };
@@ -196,7 +196,7 @@ export default function NoteCard({
               deferFocus(categoryRef);
             } catch(error) {
               console.error("NoteCard - Add category failed.", error);
-              toast.error("Failed to add category. Please try again.");
+              notifyError("Failed to add category. Please try again.");
             } finally {
               setIsAddingCategory(false);
             };

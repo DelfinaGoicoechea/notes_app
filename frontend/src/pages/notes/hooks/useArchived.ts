@@ -5,7 +5,7 @@ import {
   getArchivedNotes,
   unarchiveNote,
 } from "../../../services/notes.service";
-import toast from "react-hot-toast";
+import { notifyError } from "../../../a11y/announcer";
 
 
 export function useArchived(){
@@ -26,7 +26,7 @@ export function useArchived(){
       setNotes(response);
     } catch (error) {
       console.error("useArchived - Get archived notes failed.", error);
-      toast.error("Failed to load archived notes. Please try again.", { 
+      notifyError("Failed to load archived notes. Please try again.", { 
         id: 'load-archived-notes-error' 
       });
     } finally {
@@ -50,7 +50,7 @@ export function useArchived(){
       return true;
     } catch(error) {
       console.error("useArchived - Unarchive note failed.", error);
-      toast.error("Failed to unarchive note. Please try again.");
+      notifyError("Failed to unarchive note. Please try again.");
       return false;
     } finally {
       setUnarchivingNoteId(null);
@@ -65,7 +65,7 @@ export function useArchived(){
       return true;
     } catch(error) {
       console.error("useArchived - Delete note failed.", error);
-      toast.error("Failed to delete note. Please try again.");
+      notifyError("Failed to delete note. Please try again.");
       return false;
     } finally {
       setDeletingNoteId(null);
