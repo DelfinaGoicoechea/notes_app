@@ -97,9 +97,9 @@ export default function NoteCard({
         className="border rounded-md p-4 flex flex-col gap-3"
         onKeyDown={handleKeyDown}
       >
-        <label htmlFor="edit-note-title" className="sr-only">Note title</label>
+        <label htmlFor={`edit-note-title-${note.id}`} className="sr-only">Note title</label>
         <input
-          id="edit-note-title"
+          id={`edit-note-title-${note.id}`}
           ref={titleRef}
           className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
           value={title}
@@ -108,9 +108,9 @@ export default function NoteCard({
           autoComplete="off"
         />
 
-        <label htmlFor="edit-note-content" className="sr-only">Note content</label>
+        <label htmlFor={`edit-note-content-${note.id}`} className="sr-only">Note content</label>
         <textarea
-          id="edit-note-content"
+          id={`edit-note-content-${note.id}`}
           className="border rounded-md px-3 py-2 text-sm min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -203,9 +203,9 @@ export default function NoteCard({
           }}
           className="flex gap-2"
         >
-          <label htmlFor="add-category" className="sr-only">Add category to note</label>
+          <label htmlFor={`add-category-${note.id}`} className="sr-only">Add category to note</label>
           <input
-            id="add-category"
+            id={`add-category-${note.id}`}
             ref={categoryRef}
             className="border rounded-md px-3 py-1.5 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
             placeholder="Add category (e.g. work)"
@@ -227,9 +227,11 @@ export default function NoteCard({
 
       <div className="flex gap-2 text-sm">
         <button
+          id={`edit-btn-${note.id}`}
           onClick={() => setIsEditing(true)}
           ref={editBtnRef}
           className="border px-3 py-1.5 rounded-md hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+          aria-label={`Edit ${note.title}`}
         >
           Edit
         </button>

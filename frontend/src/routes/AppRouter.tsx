@@ -7,10 +7,10 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<ActiveNotesPage />} />
-        <Route path="/archived" element={<ArchivedNotesPage />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<ActiveNotesPage />} />
+          <Route path="/archived" element={<ArchivedNotesPage />} />
+        </Routes>
     </BrowserRouter>
   );
 }

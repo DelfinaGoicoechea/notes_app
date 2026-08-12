@@ -2,10 +2,10 @@ import type { Note } from "../../../types/note";
 import NoteCard from "../../../components/NoteCard";
 import NoteForm from "../../../components/NoteForm";
 import Spinner from "../../../components/Spinner";
-import { useRef } from "react";
 import { announce } from "../../../a11y/announcer";
+import { focusTarget, getFocusTargetAfterRemoval } from "../../../utils/focusTarget";
 
-interface NotesT {
+interface NotesProps {
   title: string;
   showForm: boolean;
   notes: Note[];
@@ -37,28 +37,28 @@ export function Notes({
   deletingNoteId,
   search,
   setSearch,
-}: NotesT) {
-
-  const headingRef = useRef<HTMLHeadingElement>(null);
-
+}: NotesProps) {
 
   const handleDeleteWithFocus = async (id: number) => {
-    const isOk = await handleDelete(id);
+    const target = getFocusTargetAfterRemoval(notes, id, showForm);
+
+    const isOk = await handleDelete(id);    
     if(!isOk) return;
 
-    headingRef.current?.focus();
     announce("Note deleted");
+    focusTarget(target);
   };
 
   const handleArchiveWithFocus = async (id: number) => {
     const note = notes.find((n) => n.id === id);
     const isCurrentlyArchived = note?.archived ?? false;
+    const target = getFocusTargetAfterRemoval(notes, id, showForm);
 
     const isOk = await handleArchive(id);
     if(!isOk) return;
 
-    headingRef.current?.focus();
     announce(isCurrentlyArchived ? "Note unarchived" : "Note archived");
+    focusTarget(target);
   };
 
   const getEmptyStateMessage = () => {
@@ -138,11 +138,7 @@ export function Notes({
 
   return (
     <div className="max-w-xl mx-auto px-4 py-6 flex flex-col gap-6">
-      <h1 
-        ref={headingRef} 
-        tabIndex={-1} 
-        className="text-xl font-semibold rounded-sm px-1 -mx-1 focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-gray-600 focus:ring-offset-1"
-      >
+      <h1 className="text-xl font-semibold">
         {title}
       </h1>
 

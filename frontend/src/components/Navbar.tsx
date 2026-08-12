@@ -12,6 +12,7 @@ export default function Navbar() {
       <div className="max-w-xl mx-auto flex gap-4 px-4 py-3 text-sm">
         <NavLink
           to="/"
+          id="nav-active-notes"
           className={getNavLinkClassName}
         >
           Active Notes
