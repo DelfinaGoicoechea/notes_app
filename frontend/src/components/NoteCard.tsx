@@ -208,7 +208,7 @@ export default function NoteCard({
             id={`add-category-${note.id}`}
             ref={categoryRef}
             className="border rounded-md px-3 py-1.5 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
-            placeholder="Add category (e.g. work)"
+            placeholder="e.g. work"
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
             disabled={isAddingCategory}
@@ -220,7 +220,7 @@ export default function NoteCard({
             className="border px-3 py-1.5 rounded-md text-sm hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
           >
             {isAddingCategory && <Spinner />}
-            {isAddingCategory ? 'Adding...' : 'Add'}
+            {isAddingCategory ? 'Adding...' : 'Add Category'}
           </button>
         </form>
       </div>

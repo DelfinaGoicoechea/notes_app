@@ -144,44 +144,48 @@ export function Notes({
 
       {showForm && handleNoteCreated && <NoteForm onCreated={handleNoteCreated} />}
 
-      <div className="flex gap-2">
-        <label htmlFor="search-input" className="sr-only">Search notes</label>
-        <input
-          id="search-input"
-          className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 focus-visible:ring-gray-400"
-          placeholder="Search notes by title or content..."
-          value={search || ""}
-          onChange={(e) => setSearch(e.target.value)}
-          autoComplete="off"
-        />
-        <button
-          type="button"
-          onClick={() => setSearch("")}
-          className="border rounded-md px-3 py-2 text-sm hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
-          aria-label="Clear search"
-        >
-          Clear
-        </button>
+      <div className="flex flex-col gap-1">
+          <label htmlFor="search-input" className="text-base font-medium text-gray-700">Search notes</label>
+          <div className="flex gap-2">
+            <input
+              id="search-input"
+              className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 focus-visible:ring-gray-400"
+              placeholder="e.g. shopping"
+              value={search || ""}
+              onChange={(e) => setSearch(e.target.value)}
+              autoComplete="off"
+            />
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="border rounded-md px-3 py-2 text-sm hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+              aria-label="Clear search"
+            >
+              Clear
+            </button>
+        </div>
       </div>
 
-      <div className="flex gap-2">
-        <label htmlFor="category-input" className="sr-only">Filter by category</label>
-        <input
-          id="category-input"
-          className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 focus-visible:ring-gray-400"
-          placeholder="Filter by category (prefix, case-insensitive)"
-          value={category || ""}
-          onChange={(e) => setCategory(e.target.value)}
-          autoComplete="off"
-        />
-        <button
-          type="button"
-          onClick={() => setCategory("")}
-          className="border px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
-          aria-label="Clear category filter"
-        >
-          Clear
-        </button>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="category-input" className="text-base font-medium text-gray-700">Filter by category</label>
+        <div className="flex gap-2">
+          <input
+            id="category-input"
+            className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 focus-visible:ring-gray-400"
+            placeholder="e.g. work"
+            value={category || ""}
+            onChange={(e) => setCategory(e.target.value)}
+            autoComplete="off"
+          />
+          <button
+            type="button"
+            onClick={() => setCategory("")}
+            className="border px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+            aria-label="Clear category filter"
+          >
+            Clear
+          </button>
+        </div>
       </div>
 
       {(search || category) && notes.length > 0 && (

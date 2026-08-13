@@ -45,23 +45,25 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       ref={formRef}
       className="max-w-xl flex flex-col gap-4"
     >
-      <label htmlFor="note-title" className="sr-only">Note title</label>
-      <input
-        id="note-title"
-        ref={titleRef}
-        className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        disabled={isCreating}
-        autoComplete="off"
-      />
+      <div className="flex flex-col gap-1">
+        <label htmlFor="note-title" className="text-base font-medium">Note Title</label>
+        <input
+          id="note-title"
+          ref={titleRef}
+          className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
+          placeholder="e.g. Shopping list"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          disabled={isCreating}
+          autoComplete="off"
+        />
+      </div>
 
       <label htmlFor="note-content" className="sr-only">Note content</label>
       <textarea
         id="note-content"
         className="border rounded-md px-3 py-2 text-sm min-h-[120px] resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
-        placeholder="Content"
+        placeholder="e.g. Buy milk, bread, and eggs"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         disabled={isCreating}
