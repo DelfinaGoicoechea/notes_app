@@ -24,13 +24,14 @@ function App() {
           {(t) => (
             <ToastBar toast={t}>
               {({ icon, message }) => (
-                <div aria-hidden="true">
+                <div aria-hidden="true" className="flex items-center gap-2">
                   {icon}
                   {message}
                   {t.type !== 'loading' && (
                     <button 
                       type="button"
                       tabIndex={-1}
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={() => toast.dismiss(t.id)}
                     >
                       ×

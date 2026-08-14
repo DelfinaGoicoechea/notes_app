@@ -1,24 +1,27 @@
-import { createContext, useEffect } from "react";
-import { useAnnounce } from "../hooks/useAnnounce";
-import type { Politeness } from "../types/announce";
-import { registerAnnouncer } from "./announcer";
+import { LIVE_REGION_IDS } from "./announce";
 
-const AnnounceContext = createContext<(
-  message: string, politeness?: Politeness) => void
-  >(() => {});
-
+/**
+ * Mounts the two live regions used by `announce()`.
+ * No React state and no context — regions are updated imperatively.
+ */
 export function AnnounceProvider({ children }: { children: React.ReactNode }) {
-  const { announce, Announcer } = useAnnounce();
-
-  useEffect(() => {
-    registerAnnouncer(announce);
-    return () => registerAnnouncer(() => {});  
-  }, [announce]);
-
   return (
-    <AnnounceContext.Provider value={announce}>
-      {Announcer}
+    <>
+      <div
+        id={LIVE_REGION_IDS.polite}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      />
+      <div
+        id={LIVE_REGION_IDS.assertive}
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        className="sr-only"
+      />
       {children}
-    </AnnounceContext.Provider>
+    </>
   );
-};
+}

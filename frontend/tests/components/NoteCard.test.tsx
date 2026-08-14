@@ -472,9 +472,11 @@ describe('NoteCard - Loading States (FE-004)', () => {
         />
       );
 
-      // ASSERT: Button shows "Deleting..." and is disabled
-      const deleteButton = screen.getByRole('button', { name: /deleting\.\.\./i });
+      // ASSERT: Accessible name stays "Delete"; busy state is via aria-busy + visible text
+      const deleteButton = screen.getByRole('button', { name: /^delete$/i });
       expect(deleteButton).toBeDisabled();
+      expect(deleteButton).toHaveAttribute('aria-busy', 'true');
+      expect(screen.getByText(/deleting\.\.\./i)).toBeInTheDocument();
     });
 
     test('shows "Deleting..." text when deletingNoteId matches', () => {

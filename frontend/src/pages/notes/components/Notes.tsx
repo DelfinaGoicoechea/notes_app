@@ -2,8 +2,9 @@ import type { Note } from "../../../types/note";
 import NoteCard from "../../../components/NoteCard";
 import NoteForm from "../../../components/NoteForm";
 import Spinner from "../../../components/Spinner";
-import { announce } from "../../../a11y/announcer";
+import { announce } from "../../../a11y/announce";
 import { focusTarget, getFocusTargetAfterRemoval } from "../../../utils/focusTarget";
+
 
 interface NotesProps {
   title: string;
@@ -38,14 +39,14 @@ export function Notes({
   search,
   setSearch,
 }: NotesProps) {
-
   const handleDeleteWithFocus = async (id: number) => {
     const target = getFocusTargetAfterRemoval(notes, id, showForm);
 
     const isOk = await handleDelete(id);    
     if(!isOk) return;
 
-    announce("Note deleted");
+    // Assertive: VoiceOver drops polite updates that compete with a focus move.
+    announce("Note deleted", "assertive");
     focusTarget(target);
   };
 
@@ -57,7 +58,10 @@ export function Notes({
     const isOk = await handleArchive(id);
     if(!isOk) return;
 
-    announce(isCurrentlyArchived ? "Note unarchived" : "Note archived");
+    announce(
+      isCurrentlyArchived ? "Note unarchived" : "Note archived",
+      "assertive"
+    );
     focusTarget(target);
   };
 

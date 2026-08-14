@@ -3,7 +3,8 @@ import { createNote } from "../services/notes.service";
 import type { Note } from "../types/note";
 import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
-import { notifyError } from "../a11y/announcer";
+import { announce } from "../a11y/announce";
+import { notifyError } from "../utils/notifyError";
 
 interface NoteFormProps {
   onCreated: (createdNote: Note) => void;
@@ -31,7 +32,9 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       });
     } catch(error) {
       console.error("NoteForm - Create note failed.", error);
-      notifyError("Failed to create note. Please try again.");
+      const message = "Failed to create note. Please try again.";
+      notifyError(message);
+      announce(message, "assertive");
     } finally {
       setIsCreating(false);
     };

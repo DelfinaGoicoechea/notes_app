@@ -3,7 +3,8 @@ import type { Note } from "../types/note";
 import { addCategoryToNote, removeCategoryFromNote, updateNote } from "../services/notes.service";
 import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
-import { notifyError } from "../a11y/announcer";
+import { announce } from "../a11y/announce";
+import { notifyError } from "../utils/notifyError";
 
 interface NoteCardProps {
   note: Note;
@@ -62,7 +63,9 @@ export default function NoteCard({
       onUpdated?.(updatedNote);
     } catch(error) {
       console.error("NoteCard - Update note failed.", error);
-      notifyError("Failed to save note changes. Please try again.");
+      const message = "Failed to save note changes. Please try again.";
+      notifyError(message);
+      announce(message, "assertive");
     } finally {
       setIsSaving(false);
     };
@@ -166,7 +169,9 @@ export default function NoteCard({
                     deferFocus(categoryRef);
                   } catch(error) {
                     console.error("NoteCard - Remove category failed.", error);
-                    notifyError("Failed to remove category. Please try again.");
+                    const message = "Failed to remove category. Please try again.";
+                    notifyError(message);
+                    announce(message, "assertive");
                   } finally {
                     setRemovingCategoryId(null);
                   };
@@ -196,7 +201,9 @@ export default function NoteCard({
               deferFocus(categoryRef);
             } catch(error) {
               console.error("NoteCard - Add category failed.", error);
-              notifyError("Failed to add category. Please try again.");
+              const message = "Failed to add category. Please try again.";
+              notifyError(message);
+              announce(message, "assertive");
             } finally {
               setIsAddingCategory(false);
             };
@@ -242,6 +249,7 @@ export default function NoteCard({
             onClick={() => onArchive(note.id)}
             disabled={archivingNoteId === note.id}
             aria-busy={archivingNoteId === note.id}
+            aria-label={note.archived ? "Unarchive" : "Archive"}
             className="border px-3 py-1.5 rounded-md hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
           >
             {archivingNoteId === note.id
@@ -256,6 +264,7 @@ export default function NoteCard({
             onClick={() => onDelete(note.id)}
             disabled={deletingNoteId === note.id}
             aria-busy={deletingNoteId === note.id}
+            aria-label="Delete"
             className="border px-3 py-1.5 rounded-md hover:bg-red-100 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
           >
             {deletingNoteId === note.id ? "Deleting..." : "Delete"}

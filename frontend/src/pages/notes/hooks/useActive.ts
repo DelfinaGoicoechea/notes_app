@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Note } from "../../../types/note";
 import { archiveNote, deleteNote, getActiveNotes } from "../../../services/notes.service";
-import { notifyError } from "../../../a11y/announcer";
-
+import { announce } from "../../../a11y/announce";
+import { notifyError } from "../../../utils/notifyError";
 
 export function useActive(){
   const [notes, setNotes] = useState<Note[]>([]);
@@ -22,9 +22,9 @@ export function useActive(){
       setNotes(response);
     } catch (error) {
       console.error("useActive - Get active notes failed.", error);
-      notifyError("Failed to load notes. Please try again.", { 
-        id: 'load-active-notes-error' 
-      });
+      const message = "Failed to load notes. Please try again.";
+      notifyError(message, { id: "load-active-notes-error" });
+      announce(message, "assertive");
     } finally {
       setIsLoading(false);
     };
@@ -45,7 +45,9 @@ export function useActive(){
       return true;
     } catch(error) {
       console.error("useActive - Archive note failed.", error);
-      notifyError("Failed to archive note. Please try again.");
+      const message = "Failed to archive note. Please try again.";
+      notifyError(message);
+      announce(message, "assertive");
       return false;
     } finally {
       setArchivingNoteId(null);
@@ -60,7 +62,9 @@ export function useActive(){
       return true;
     } catch(error) {
       console.error("useActive - Delete note failed.", error);
-      notifyError("Failed to delete note. Please try again.");
+      const message = "Failed to delete note. Please try again.";
+      notifyError(message);
+      announce(message, "assertive");
       return false;
     } finally {
       setDeletingNoteId(null);

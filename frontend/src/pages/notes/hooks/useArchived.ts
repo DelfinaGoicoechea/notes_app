@@ -5,8 +5,8 @@ import {
   getArchivedNotes,
   unarchiveNote,
 } from "../../../services/notes.service";
-import { notifyError } from "../../../a11y/announcer";
-
+import { announce } from "../../../a11y/announce";
+import { notifyError } from "../../../utils/notifyError";
 
 export function useArchived(){
   const [notes, setNotes] = useState<Note[]>([]);
@@ -26,9 +26,9 @@ export function useArchived(){
       setNotes(response);
     } catch (error) {
       console.error("useArchived - Get archived notes failed.", error);
-      notifyError("Failed to load archived notes. Please try again.", { 
-        id: 'load-archived-notes-error' 
-      });
+      const message = "Failed to load archived notes. Please try again.";
+      notifyError(message, { id: "load-archived-notes-error" });
+      announce(message, "assertive");
     } finally {
       setIsLoading(false);
     };
@@ -50,7 +50,9 @@ export function useArchived(){
       return true;
     } catch(error) {
       console.error("useArchived - Unarchive note failed.", error);
-      notifyError("Failed to unarchive note. Please try again.");
+      const message = "Failed to unarchive note. Please try again.";
+      notifyError(message);
+      announce(message, "assertive");
       return false;
     } finally {
       setUnarchivingNoteId(null);
@@ -65,7 +67,9 @@ export function useArchived(){
       return true;
     } catch(error) {
       console.error("useArchived - Delete note failed.", error);
-      notifyError("Failed to delete note. Please try again.");
+      const message = "Failed to delete note. Please try again.";
+      notifyError(message);
+      announce(message, "assertive");
       return false;
     } finally {
       setDeletingNoteId(null);
