@@ -26,8 +26,8 @@ export function useArchived(){
       setNotes(response);
     } catch (error) {
       console.error("useArchived - Get archived notes failed.", error);
-      const message = "Failed to load archived notes. Please try again.";
-      notifyError(message, { id: "load-archived-notes-error" });
+      const message = "Failed to load archived notes.";
+      notifyError(`${message}` + " Please try again.", { id: "load-archived-notes-error" });
       announce(message, "assertive");
     } finally {
       setIsLoading(false);
@@ -50,8 +50,8 @@ export function useArchived(){
       return true;
     } catch(error) {
       console.error("useArchived - Unarchive note failed.", error);
-      const message = "Failed to unarchive note. Please try again.";
-      notifyError(message);
+      const message = "Failed to unarchive note.";
+      notifyError(`${message}` + " Please try again.");
       announce(message, "assertive");
       return false;
     } finally {
@@ -67,8 +67,8 @@ export function useArchived(){
       return true;
     } catch(error) {
       console.error("useArchived - Delete note failed.", error);
-      const message = "Failed to delete note. Please try again.";
-      notifyError(message);
+      const message = "Failed to delete note.";
+      notifyError(`${message}` + " Please try again.");
       announce(message, "assertive");
       return false;
     } finally {

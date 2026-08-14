@@ -32,8 +32,8 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       });
     } catch(error) {
       console.error("NoteForm - Create note failed.", error);
-      const message = "Failed to create note. Please try again.";
-      notifyError(message);
+      const message = "Failed to create note.";
+      notifyError(`${message}` + " Please try again.");
       announce(message, "assertive");
     } finally {
       setIsCreating(false);
@@ -76,6 +76,7 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       <button
         type="submit"
         disabled={isCreating}
+        aria-label="Create"
         className="self-start bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
       >
         {isCreating && <Spinner />}

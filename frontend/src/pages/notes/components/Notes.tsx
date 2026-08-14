@@ -45,9 +45,8 @@ export function Notes({
     const isOk = await handleDelete(id);    
     if(!isOk) return;
 
-    // Assertive: VoiceOver drops polite updates that compete with a focus move.
-    announce("Note deleted", "assertive");
     focusTarget(target);
+    announce("Note deleted", "assertive");
   };
 
   const handleArchiveWithFocus = async (id: number) => {
@@ -58,11 +57,11 @@ export function Notes({
     const isOk = await handleArchive(id);
     if(!isOk) return;
 
+    focusTarget(target);
     announce(
       isCurrentlyArchived ? "Note unarchived" : "Note archived",
       "assertive"
     );
-    focusTarget(target);
   };
 
   const getEmptyStateMessage = () => {

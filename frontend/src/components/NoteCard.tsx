@@ -63,8 +63,8 @@ export default function NoteCard({
       onUpdated?.(updatedNote);
     } catch(error) {
       console.error("NoteCard - Update note failed.", error);
-      const message = "Failed to save note changes. Please try again.";
-      notifyError(message);
+      const message = "Failed to save note changes.";
+      notifyError(`${message}` + " Please try again.");
       announce(message, "assertive");
     } finally {
       setIsSaving(false);
@@ -125,6 +125,7 @@ export default function NoteCard({
           <button
             type="submit"
             disabled={isSaving}
+            aria-label="Save"
             className="bg-gray-900 text-white px-3 py-1.5 rounded-md text-sm hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
           >
             {isSaving && <Spinner />}
@@ -169,8 +170,8 @@ export default function NoteCard({
                     deferFocus(categoryRef);
                   } catch(error) {
                     console.error("NoteCard - Remove category failed.", error);
-                    const message = "Failed to remove category. Please try again.";
-                    notifyError(message);
+                    const message = "Failed to remove category.";
+                    notifyError(`${message}` + " Please try again.");
                     announce(message, "assertive");
                   } finally {
                     setRemovingCategoryId(null);
@@ -201,8 +202,8 @@ export default function NoteCard({
               deferFocus(categoryRef);
             } catch(error) {
               console.error("NoteCard - Add category failed.", error);
-              const message = "Failed to add category. Please try again.";
-              notifyError(message);
+              const message = "Failed to add category.";
+              notifyError(`${message}` + " Please try again.");
               announce(message, "assertive");
             } finally {
               setIsAddingCategory(false);
@@ -224,6 +225,7 @@ export default function NoteCard({
           <button
             type="submit"
             disabled={isAddingCategory}
+            aria-label="Add Category"
             className="border px-3 py-1.5 rounded-md text-sm hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
           >
             {isAddingCategory && <Spinner />}

@@ -22,8 +22,8 @@ export function useActive(){
       setNotes(response);
     } catch (error) {
       console.error("useActive - Get active notes failed.", error);
-      const message = "Failed to load notes. Please try again.";
-      notifyError(message, { id: "load-active-notes-error" });
+      const message = "Failed to load notes.";
+      notifyError(`${message}` + " Please try again.", { id: "load-active-notes-error" });
       announce(message, "assertive");
     } finally {
       setIsLoading(false);
@@ -45,8 +45,8 @@ export function useActive(){
       return true;
     } catch(error) {
       console.error("useActive - Archive note failed.", error);
-      const message = "Failed to archive note. Please try again.";
-      notifyError(message);
+      const message = "Failed to archive note.";
+      notifyError(`${message}` + " Please try again.");
       announce(message, "assertive");
       return false;
     } finally {
@@ -62,8 +62,8 @@ export function useActive(){
       return true;
     } catch(error) {
       console.error("useActive - Delete note failed.", error);
-      const message = "Failed to delete note. Please try again.";
-      notifyError(message);
+      const message = "Failed to delete note.";
+      notifyError(`${message}` + " Please try again.");
       announce(message, "assertive");
       return false;
     } finally {
