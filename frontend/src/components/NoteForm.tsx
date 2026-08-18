@@ -15,17 +15,25 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
   const [content, setContent] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
+
   const titleRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  const showError = hasAttemptedSubmit && (title.trim() === "");
 
   const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setIsCreating(true);
+    setHasAttemptedSubmit(true);
     try {
+      if(title.trim() === "") return;
+
       const createdNote = await createNote({ title, content });
       setTitle("");
       setContent("");
       
+      setHasAttemptedSubmit(false);
       onCreated(createdNote);
       requestAnimationFrame(() => {
         titleRef.current?.focus();
@@ -37,6 +45,15 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       announce(message, "assertive");
     } finally {
       setIsCreating(false);
+    };
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const titleValue = e.target.value;
+    setTitle(titleValue);
+
+    if (titleValue.trim() !== "") {
+      setHasAttemptedSubmit(false);
     };
   };
 
@@ -53,13 +70,16 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
         <input
           id="note-title"
           ref={titleRef}
-          className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
+          className={showError ? "border rounded-md px-3 py-2 text-sm border-red-400 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-500" : "border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"}
           placeholder="e.g. Shopping list"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={handleChange}
           disabled={isCreating}
           autoComplete="off"
         />
+        {showError && (
+          <p className="text-xs text-red-500">Title cannot be empty</p>
+        )}
       </div>
 
       <label htmlFor="note-content" className="sr-only">Note content</label>
