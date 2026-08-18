@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { createNote } from "../services/notes.service";
-import toast from "react-hot-toast";
+import type { Note } from "../types/note";
 import Spinner from "./Spinner";
+import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
+import { announce } from "../a11y/announce";
+import { notifyError } from "../utils/notifyError";
 
 interface NoteFormProps {
-  onCreated: () => void;
+  onCreated: (createdNote: Note) => void;
 }
 
 export default function NoteForm({ onCreated }: NoteFormProps) {
@@ -12,48 +15,69 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
   const [content, setContent] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
+  const titleRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
   const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setIsCreating(true);
     try {
-      await createNote({ title, content });
+      const createdNote = await createNote({ title, content });
       setTitle("");
       setContent("");
       
-      onCreated();
+      onCreated(createdNote);
+      requestAnimationFrame(() => {
+        titleRef.current?.focus();
+      });
     } catch(error) {
       console.error("NoteForm - Create note failed.", error);
-      toast.error("Failed to create note. Please try again.");
+      const message = "Failed to create note.";
+      notifyError(`${message}` + " Please try again.");
+      announce(message, "assertive");
     } finally {
       setIsCreating(false);
     };
   };
 
+  const handleTextareaKeyDown = createTextareaSubmitHandler(formRef);
+
   return (
     <form
       onSubmit={handleSubmit}
+      ref={formRef}
       className="max-w-xl flex flex-col gap-4"
     >
-      <input
-        className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        disabled={isCreating}
-      />
+      <div className="flex flex-col gap-1">
+        <label htmlFor="note-title" className="text-base font-medium">Note Title</label>
+        <input
+          id="note-title"
+          ref={titleRef}
+          className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
+          placeholder="e.g. Shopping list"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          disabled={isCreating}
+          autoComplete="off"
+        />
+      </div>
 
+      <label htmlFor="note-content" className="sr-only">Note content</label>
       <textarea
-        className="border rounded-md px-3 py-2 text-sm min-h-[120px] resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        placeholder="Content"
+        id="note-content"
+        className="border rounded-md px-3 py-2 text-sm min-h-[120px] resize-none focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
+        placeholder="e.g. Buy milk, bread, and eggs"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         disabled={isCreating}
+        onKeyDown={handleTextareaKeyDown}
       />
 
       <button
         type="submit"
         disabled={isCreating}
-        className="self-start bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label="Create"
+        className="self-start bg-gray-900 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
       >
         {isCreating && <Spinner />}
         {isCreating ? 'Creating...' : 'Create'}

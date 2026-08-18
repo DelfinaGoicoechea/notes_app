@@ -8,7 +8,7 @@ export const ArchivedNotesPage = () => {
     notes,
     handleUnarchive,
     handleDelete,
-    handleRefetch,
+    handleNoteUpdated,
     category,
     setCategory,
     isLoading,
@@ -25,7 +25,7 @@ export const ArchivedNotesPage = () => {
       notes={notes} 
       handleArchive={handleUnarchive}
       handleDelete={handleDelete}
-      handleRefetch={handleRefetch}
+      handleNoteUpdated={handleNoteUpdated}
       category={category}
       setCategory={setCategory}
       isLoading={isLoading}

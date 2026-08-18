@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Note } from "../../../types/note";
 import { archiveNote, deleteNote, getActiveNotes } from "../../../services/notes.service";
-import toast from "react-hot-toast";
-
+import { announce } from "../../../a11y/announce";
+import { notifyError } from "../../../utils/notifyError";
 
 export function useActive(){
   const [notes, setNotes] = useState<Note[]>([]);
@@ -22,9 +22,9 @@ export function useActive(){
       setNotes(response);
     } catch (error) {
       console.error("useActive - Get active notes failed.", error);
-      toast.error("Failed to load notes. Please try again.", { 
-        id: 'load-active-notes-error' 
-      });
+      const message = "Failed to load notes.";
+      notifyError(`${message}` + " Please try again.", { id: "load-active-notes-error" });
+      announce(message, "assertive");
     } finally {
       setIsLoading(false);
     };
@@ -37,41 +37,56 @@ export function useActive(){
     return () => clearTimeout(debounceTimer);
   }, [handleFetch]);
 
-  const handleArchive = async (id: number) => {
+  const handleArchive = async (id: number): Promise<boolean> => {
     setArchivingNoteId(id);
     try {
       await archiveNote(id);
-      await handleFetch();
+      setNotes((prev) => prev.filter((note) => note.id !== id));
+      return true;
     } catch(error) {
       console.error("useActive - Archive note failed.", error);
-      toast.error("Failed to archive note. Please try again.");
+      const message = "Failed to archive note.";
+      notifyError(`${message}` + " Please try again.");
+      announce(message, "assertive");
+      return false;
     } finally {
       setArchivingNoteId(null);
     };
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number): Promise<boolean> => {
     setDeletingNoteId(id);
     try {
       await deleteNote(id);
-      await handleFetch();
+      setNotes((prev) => prev.filter((note) => note.id !== id));
+      return true;
     } catch(error) {
       console.error("useActive - Delete note failed.", error);
-      toast.error("Failed to delete note. Please try again.");
+      const message = "Failed to delete note.";
+      notifyError(`${message}` + " Please try again.");
+      announce(message, "assertive");
+      return false;
     } finally {
       setDeletingNoteId(null);
     };
   };
 
-  const handleRefetch = () => {
-    handleFetch();
+  const handleNoteUpdated = (updatedNote: Note) => {
+    setNotes((prev) =>
+      prev.map((note) => (note.id === updatedNote.id ? updatedNote : note))
+    );
+  };
+
+  const handleNoteCreated = (createdNote: Note) => {
+    setNotes((prev) => [createdNote, ...prev]);
   };
 
   return {
     notes,
     handleArchive,
     handleDelete,
-    handleRefetch,
+    handleNoteUpdated,
+    handleNoteCreated,
     category,
     setCategory,
     isLoading,

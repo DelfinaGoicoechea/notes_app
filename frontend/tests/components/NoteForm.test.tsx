@@ -88,6 +88,7 @@ describe('NoteForm - Error Handling (FE-003)', () => {
       expect(titleInput).toHaveValue('');
       expect(contentInput).toHaveValue('');
       expect(mockOnCreated).toHaveBeenCalledTimes(1);
+      expect(mockOnCreated).toHaveBeenCalledWith(mockCreatedNote);
     });
   });
 

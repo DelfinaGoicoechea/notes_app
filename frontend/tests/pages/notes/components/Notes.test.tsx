@@ -31,7 +31,8 @@ describe('Notes Component - Search UI (FE-005)', () => {
     notes: mockNotes,
     handleArchive: vi.fn(),
     handleDelete: vi.fn(),
-    handleRefetch: vi.fn(),
+    handleNoteUpdated: vi.fn(),
+    handleNoteCreated: vi.fn(),
     category: '',
     setCategory: vi.fn(),
     isLoading: false,
@@ -369,9 +370,18 @@ describe('Notes Component - Search UI (FE-005)', () => {
       expect(searchInput).not.toBeDisabled();
     });
 
-    test('shows spinner when loading with search active', () => {
+    test('keeps notes visible while loading with search active', () => {
       // ACT
       render(<Notes {...defaultProps} isLoading={true} search="meeting" />);
+
+      // ASSERT: avoid unmounting the list during filter fetches
+      expect(screen.getByText('Meeting Notes')).toBeInTheDocument();
+      expect(screen.queryByText(/loading\.\.\./i)).not.toBeInTheDocument();
+    });
+
+    test('shows spinner only when loading with no notes yet', () => {
+      // ACT
+      render(<Notes {...defaultProps} isLoading={true} notes={[]} search="meeting" />);
 
       // ASSERT
       expect(screen.getByText(/loading\.\.\./i)).toBeInTheDocument();

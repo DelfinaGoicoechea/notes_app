@@ -2,14 +2,18 @@ import type { Note } from "../../../types/note";
 import NoteCard from "../../../components/NoteCard";
 import NoteForm from "../../../components/NoteForm";
 import Spinner from "../../../components/Spinner";
+import { announce } from "../../../a11y/announce";
+import { focusTarget, getFocusTargetAfterRemoval } from "../../../utils/focusTarget";
 
-interface NotesT {
+
+interface NotesProps {
   title: string;
   showForm: boolean;
   notes: Note[];
-  handleArchive: (id: number) => void;
-  handleDelete: (id: number) => void;
-  handleRefetch: () => void;
+  handleArchive: (id: number) => Promise<boolean>;
+  handleDelete: (id: number) => Promise<boolean>;
+  handleNoteUpdated: (note: Note) => void;
+  handleNoteCreated?: (note: Note) => void;
   category: string;
   setCategory: (value: string) => void;
   isLoading: boolean;
@@ -25,7 +29,8 @@ export function Notes({
   notes,
   handleArchive,
   handleDelete,
-  handleRefetch,
+  handleNoteUpdated,
+  handleNoteCreated,
   category,
   setCategory,
   isLoading,
@@ -33,7 +38,32 @@ export function Notes({
   deletingNoteId,
   search,
   setSearch,
-}: NotesT) {
+}: NotesProps) {
+  const handleDeleteWithFocus = async (id: number) => {
+    const target = getFocusTargetAfterRemoval(notes, id, showForm);
+
+    const isOk = await handleDelete(id);    
+    if(!isOk) return;
+
+    focusTarget(target);
+    announce("Note deleted", "assertive");
+  };
+
+  const handleArchiveWithFocus = async (id: number) => {
+    const note = notes.find((n) => n.id === id);
+    const isCurrentlyArchived = note?.archived ?? false;
+    const target = getFocusTargetAfterRemoval(notes, id, showForm);
+
+    const isOk = await handleArchive(id);
+    if(!isOk) return;
+
+    focusTarget(target);
+    announce(
+      isCurrentlyArchived ? "Note unarchived" : "Note archived",
+      "assertive"
+    );
+  };
+
   const getEmptyStateMessage = () => {
     const hasCategory = category && category.trim() !== "";
     const hasSearch = search && search.trim() !== "";
@@ -69,7 +99,8 @@ export function Notes({
   };
 
   const renderContent = () => {
-    if (isLoading) {
+    // Only replace the list with a spinner on the first load (no notes yet).
+    if (isLoading && notes.length === 0) {
       return (
         <div className="flex justify-center items-center py-12">
           <Spinner />
@@ -77,7 +108,7 @@ export function Notes({
       );
     }
 
-    if (notes.length === 0) {
+    if (!isLoading && notes.length === 0) {
       const emptyState = getEmptyStateMessage();
       return (
         <div className="bg-gray-50 border border-gray-200 rounded-md py-12 px-6 text-center">
@@ -92,14 +123,14 @@ export function Notes({
     }
 
     return (
-      <div className="flex flex-col gap-4">
+      <div className={`flex flex-col gap-4 ${isLoading ? "opacity-60" : ""}`}>
         {notes.map((note) => (
           <NoteCard
             key={note.id}
             note={note}
-            onArchive={handleArchive}
-            onDelete={handleDelete}
-            onUpdated={handleRefetch}
+            onArchive={handleArchiveWithFocus}
+            onDelete={handleDeleteWithFocus}
+            onUpdated={handleNoteUpdated}
             archivingNoteId={archivingNoteId}
             deletingNoteId={deletingNoteId}
           />
@@ -110,40 +141,54 @@ export function Notes({
 
   return (
     <div className="max-w-xl mx-auto px-4 py-6 flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">{title}</h1>
+      <h1 className="text-xl font-semibold">
+        {title}
+      </h1>
 
-      {showForm && <NoteForm onCreated={handleRefetch} />}
+      {showForm && handleNoteCreated && <NoteForm onCreated={handleNoteCreated} />}
 
-      <div className="flex gap-2">
-        <input 
-          className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300"
-          placeholder="Search notes by title or content..."
-          value={search || ""}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button
-          type="button"
-          onClick={() => setSearch("")}
-          className="border rounded-md px-3 py-2 text-sm hover:bg-gray-100 transition"
-        >
-          Clear
-        </button>
+      <div className="flex flex-col gap-1">
+          <label htmlFor="search-input" className="text-base font-medium text-gray-700">Search notes</label>
+          <div className="flex gap-2">
+            <input
+              id="search-input"
+              className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 focus-visible:ring-gray-400"
+              placeholder="e.g. shopping"
+              value={search || ""}
+              onChange={(e) => setSearch(e.target.value)}
+              autoComplete="off"
+            />
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="border rounded-md px-3 py-2 text-sm hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+              aria-label="Clear search"
+            >
+              Clear
+            </button>
+        </div>
       </div>
 
-      <div className="flex gap-2">
-        <input
-          className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300"
-          placeholder="Filter by category (prefix, case-insensitive)"
-          value={category || ""}
-          onChange={(e) => setCategory(e.target.value)}
-        />
-        <button
-          type="button"
-          onClick={() => setCategory("")}
-          className="border px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition"
-        >
-          Clear
-        </button>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="category-input" className="text-base font-medium text-gray-700">Filter by category</label>
+        <div className="flex gap-2">
+          <input
+            id="category-input"
+            className="border rounded-md px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-gray-300 focus-visible:ring-gray-400"
+            placeholder="e.g. work"
+            value={category || ""}
+            onChange={(e) => setCategory(e.target.value)}
+            autoComplete="off"
+          />
+          <button
+            type="button"
+            onClick={() => setCategory("")}
+            className="border px-3 py-2 rounded-md text-sm hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+            aria-label="Clear category filter"
+          >
+            Clear
+          </button>
+        </div>
       </div>
 
       {(search || category) && notes.length > 0 && (
