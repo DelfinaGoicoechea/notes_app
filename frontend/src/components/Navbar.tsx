@@ -20,6 +20,7 @@ export default function Navbar() {
 
         <NavLink
           to="/archived"
+          id="nav-archived-notes"
           className={getNavLinkClassName}
         >
           Archived Notes

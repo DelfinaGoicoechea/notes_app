@@ -14,7 +14,7 @@ export function getFocusTargetAfterRemoval(
   const index = notes.findIndex((n) => n.id === removedId);
   const remaining = notes.filter((n) => n.id !== removedId);
 
-  if(remaining.length > 0 && index !== -1) {  //when will it be -1? 
+  if(remaining.length > 0 && index !== -1) {
     return { kind: "note", id: remaining[Math.min(index, remaining.length - 1)].id };
   };
 
