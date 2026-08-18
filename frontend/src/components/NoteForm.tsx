@@ -5,6 +5,7 @@ import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
 import { announce } from "../a11y/announce";
 import { notifyError } from "../utils/notifyError";
+import { EMPTY_TITLE_MESSAGE, useRequiredTitle } from "../hooks/useRequiredTitle";
 
 interface NoteFormProps {
   onCreated: (createdNote: Note) => void;
@@ -18,14 +19,24 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
   const titleRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
+  const {
+    showError,
+    handleTitleChange,
+    validateTitle,
+    resetTitleValidation,
+    titleInputClassName,
+  } = useRequiredTitle(title);
+
+  const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {  
     e.preventDefault();
+    if(!validateTitle()) return;
     setIsCreating(true);
     try {
       const createdNote = await createNote({ title, content });
       setTitle("");
       setContent("");
       
+      resetTitleValidation();
       onCreated(createdNote);
       requestAnimationFrame(() => {
         titleRef.current?.focus();
@@ -53,13 +64,16 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
         <input
           id="note-title"
           ref={titleRef}
-          className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
+          className={titleInputClassName}
           placeholder="e.g. Shopping list"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => handleTitleChange(e.target.value, setTitle)}
           disabled={isCreating}
           autoComplete="off"
         />
+        {showError && (
+          <p className="text-xs text-red-500">{EMPTY_TITLE_MESSAGE}</p>
+        )}
       </div>
 
       <label htmlFor="note-content" className="sr-only">Note content</label>
