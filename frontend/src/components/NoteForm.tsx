@@ -5,6 +5,7 @@ import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
 import { announce } from "../a11y/announce";
 import { notifyError } from "../utils/notifyError";
+import { EMPTY_TITLE_MESSAGE, useRequiredTitle } from "../hooks/useRequiredTitle";
 
 interface NoteFormProps {
   onCreated: (createdNote: Note) => void;
@@ -15,25 +16,27 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
   const [content, setContent] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
-  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
-
   const titleRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const showError = hasAttemptedSubmit && (title.trim() === "");
+  const {
+    showError,
+    handleTitleChange,
+    validateTitle,
+    resetTitleValidation,
+    titleInputClassName,
+  } = useRequiredTitle(title);
 
-  const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
+  const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {  
     e.preventDefault();
+    if(!validateTitle()) return;
     setIsCreating(true);
-    setHasAttemptedSubmit(true);
     try {
-      if(title.trim() === "") return;
-
       const createdNote = await createNote({ title, content });
       setTitle("");
       setContent("");
       
-      setHasAttemptedSubmit(false);
+      resetTitleValidation();
       onCreated(createdNote);
       requestAnimationFrame(() => {
         titleRef.current?.focus();
@@ -45,15 +48,6 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
       announce(message, "assertive");
     } finally {
       setIsCreating(false);
-    };
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const titleValue = e.target.value;
-    setTitle(titleValue);
-
-    if (titleValue.trim() !== "") {
-      setHasAttemptedSubmit(false);
     };
   };
 
@@ -70,15 +64,15 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
         <input
           id="note-title"
           ref={titleRef}
-          className={showError ? "border rounded-md px-3 py-2 text-sm border-red-400 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-500" : "border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"}
+          className={titleInputClassName}
           placeholder="e.g. Shopping list"
           value={title}
-          onChange={handleChange}
+          onChange={(e) => handleTitleChange(e.target.value, setTitle)}
           disabled={isCreating}
           autoComplete="off"
         />
         {showError && (
-          <p className="text-xs text-red-500">Title cannot be empty</p>
+          <p className="text-xs text-red-500">{EMPTY_TITLE_MESSAGE}</p>
         )}
       </div>
 

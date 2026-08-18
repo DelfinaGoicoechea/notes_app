@@ -5,6 +5,7 @@ import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
 import { announce } from "../a11y/announce";
 import { notifyError } from "../utils/notifyError";
+import { EMPTY_TITLE_MESSAGE, useRequiredTitle } from "../hooks/useRequiredTitle";
 
 interface NoteCardProps {
   note: Note;
@@ -36,6 +37,14 @@ export default function NoteCard({
   const categoryRef = useRef<HTMLInputElement>(null);
   const editFormRef = useRef<HTMLFormElement>(null);
 
+  const {
+    showError,
+    handleTitleChange,
+    validateTitle,
+    resetTitleValidation,
+    titleInputClassName,
+  } = useRequiredTitle(title);
+
   useEffect(() => {
     if (!isEditing) {
       setTitle(note.title);
@@ -55,10 +64,12 @@ export default function NoteCard({
 
   const handleSave: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+    if(!validateTitle()) return;
     setIsSaving(true);
     try {
       const updatedNote = await updateNote(note.id, { title, content });
 
+      resetTitleValidation();
       setIsEditing(false);
       onUpdated?.(updatedNote);
     } catch(error) {
@@ -81,6 +92,7 @@ export default function NoteCard({
   const handleCancel = (): void => {
     setTitle(note.title);
     setContent(note.content);
+    resetTitleValidation();
     setIsEditing(false);
   };
 
@@ -100,16 +112,23 @@ export default function NoteCard({
         className="border rounded-md p-4 flex flex-col gap-3"
         onKeyDown={handleKeyDown}
       >
-        <label htmlFor={`edit-note-title-${note.id}`} className="sr-only">Note title</label>
-        <input
-          id={`edit-note-title-${note.id}`}
-          ref={titleRef}
-          className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          disabled={isSaving}
-          autoComplete="off"
-        />
+        <div className="flex flex-col gap-1">
+          <label htmlFor={`edit-note-title-${note.id}`} className="sr-only">Note title</label>
+          <input
+            id={`edit-note-title-${note.id}`}
+            ref={titleRef}
+            className={titleInputClassName}
+            value={title}
+            onChange={(e) => handleTitleChange(e.target.value, setTitle)}
+            disabled={isSaving}
+            autoComplete="off"
+          />
+          {showError && (
+            <p id={`edit-note-title-error-${note.id}`} className="text-xs text-red-500">
+              {EMPTY_TITLE_MESSAGE}
+            </p>
+          )}
+        </div>
 
         <label htmlFor={`edit-note-content-${note.id}`} className="sr-only">Note content</label>
         <textarea
