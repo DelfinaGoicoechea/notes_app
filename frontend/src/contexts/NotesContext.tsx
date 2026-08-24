@@ -4,6 +4,7 @@ import { notifyError } from "../utils/notifyError";
 import { announce } from "../a11y/announce";
 import { 
   getActiveNotes,
+  getArchivedNotes,
   createNote as createNoteRequest,
   updateNote as updateNoteRequest,
   deleteNote as deleteNoteRequest,
@@ -32,9 +33,11 @@ type NotesContextValue = {
   removeCategory: (id: number, name: string) => Promise<Note>;
 };
 
+type NotesView = "active" | "archived";
+
 export const NotesContext = createContext<NotesContextValue | undefined>(undefined);
 
-export function NotesProvider({ children }: { children: React.ReactNode }) {
+export function NotesProvider({ children, view }: { children: React.ReactNode; view: NotesView }) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [category, setCategory] = useState<string>("");
   const [search, setSearch] = useState<string>("");
@@ -48,17 +51,21 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       const trimmedCategory = category.trim() || undefined;
       const trimmedSearch = search.trim() || undefined;
           
-      const response = await getActiveNotes(trimmedCategory, trimmedSearch);
+      const response = await (
+        view === "active" 
+        ? getActiveNotes(trimmedCategory, trimmedSearch) 
+        : getArchivedNotes(trimmedCategory, trimmedSearch)
+      );
       setNotes(response);
     } catch (error) {
-      console.error("NotesContext - Get notes failed.", error);
+      console.error(`NotesContext - Get ${view} notes failed.`, error);
       const message = "Failed to load notes.";
-      notifyError(`${message}` + " Please try again.", { id: "load-active-notes-error" });
+      notifyError(`${message}` + " Please try again.", { id: `load-${view}-notes-error` });
       announce(message, "assertive");
     } finally {
       setIsLoading(false);
     };
-  }, [category, search]);
+  }, [category, search, view]);
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -70,10 +77,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
   
   const createNote = async (data: { title: string, content: string }) => {
     try {   
-      const createdNote = await createNoteRequest({
-        title: data.title,
-        content: data.content 
-      });      
+      const createdNote = await createNoteRequest(data);    
       setNotes((prev) => [createdNote, ...prev]);
       return createdNote;
     } catch(error) {
@@ -87,10 +91,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
 
   const updateNote = async (id: number, data: { title: string, content: string}) => {
     try {
-      const updatedNote = await updateNoteRequest(id, { 
-        title: data.title, 
-        content: data.content 
-      });
+      const updatedNote = await updateNoteRequest(id, data);
       setNotes((prev) =>
         prev.map((note) => (note.id === updatedNote.id ? updatedNote : note))
       );
@@ -198,14 +199,14 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       archivingNoteId,
       deletingNoteId,
-      getNotes,
-      createNote,
-      updateNote,
+      getNotes, //
+      createNote, //
+      updateNote, //
       deleteNote,
       archiveNote,
       unarchiveNote,
-      addCategory,
-      removeCategory
+      addCategory,  //
+      removeCategory  //
     }}>
       {children}
     </NotesContext.Provider>
