@@ -14,7 +14,7 @@ import {
   removeCategoryFromNote
 } from "../services/notes.service";
 
-type NotesContextValue = {
+export type NotesContextValue = {
   notes: Note[];
   category: string;
   setCategory: (value: string) => void;
@@ -200,13 +200,13 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
       archivingNoteId,
       deletingNoteId,
       getNotes, //
-      createNote, //
-      updateNote, //
+      createNote,
+      updateNote,
       deleteNote,
       archiveNote,
       unarchiveNote,
-      addCategory,  //
-      removeCategory  //
+      addCategory,
+      removeCategory
     }}>
       {children}
     </NotesContext.Provider>

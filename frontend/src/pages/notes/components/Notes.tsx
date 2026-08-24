@@ -119,7 +119,6 @@ export function Notes({ title, showForm }: NotesProps) {
             note={note}
             onArchive={handleArchiveWithFocus}
             onDelete={handleDeleteWithFocus}
-            onUpdated={handleNoteUpdated}
             archivingNoteId={archivingNoteId}
             deletingNoteId={deletingNoteId}
           />
@@ -134,7 +133,7 @@ export function Notes({ title, showForm }: NotesProps) {
         {title}
       </h1>
 
-      {showForm && <NoteForm onCreated={handleNoteCreated} />}
+      {showForm && <NoteForm />}
 
       <div className="flex flex-col gap-1">
           <label htmlFor="search-input" className="text-base font-medium text-gray-700">Search notes</label>

@@ -1,17 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { Note } from "../types/note";
-import { addCategoryToNote, removeCategoryFromNote, updateNote } from "../services/notes.service";
 import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
-import { announce } from "../a11y/announce";
-import { notifyError } from "../utils/notifyError";
 import { EMPTY_TITLE_MESSAGE, useRequiredTitle } from "../hooks/useRequiredTitle";
+import { useNotes } from "../pages/notes/hooks/useNotes";
 
 interface NoteCardProps {
   note: Note;
   onArchive?: (id: number) => void;
   onDelete?: (id: number) => void;
-  onUpdated?: (updatedNote: Note) => void;
   archivingNoteId?: number | null;
   deletingNoteId?: number | null;
 }
@@ -20,7 +17,6 @@ export default function NoteCard({
   note,
   onArchive,
   onDelete,
-  onUpdated,
   archivingNoteId,
   deletingNoteId,
 }: NoteCardProps) {
@@ -36,6 +32,8 @@ export default function NoteCard({
   const editBtnRef = useRef<HTMLButtonElement>(null);
   const categoryRef = useRef<HTMLInputElement>(null);
   const editFormRef = useRef<HTMLFormElement>(null);
+
+  const { updateNote, addCategory, removeCategory } = useNotes();
 
   const {
     showError,
@@ -67,16 +65,10 @@ export default function NoteCard({
     if(!validateTitle()) return;
     setIsSaving(true);
     try {
-      const updatedNote = await updateNote(note.id, { title, content });
+      await updateNote(note.id, { title, content });
 
       resetTitleValidation();
       setIsEditing(false);
-      onUpdated?.(updatedNote);
-    } catch(error) {
-      console.error("NoteCard - Update note failed.", error);
-      const message = "Failed to save note changes.";
-      notifyError(`${message}` + " Please try again.");
-      announce(message, "assertive");
     } finally {
       setIsSaving(false);
     };
@@ -183,15 +175,8 @@ export default function NoteCard({
                 onClick={async () => {
                   setRemovingCategoryId(c.id);
                   try {
-                    const updatedNote = await removeCategoryFromNote(note.id, c.name);
-                    onUpdated?.(updatedNote);
-
+                    await removeCategory(note.id, c.name);
                     deferFocus(categoryRef);
-                  } catch(error) {
-                    console.error("NoteCard - Remove category failed.", error);
-                    const message = "Failed to remove category.";
-                    notifyError(`${message}` + " Please try again.");
-                    announce(message, "assertive");
                   } finally {
                     setRemovingCategoryId(null);
                   };
@@ -214,16 +199,9 @@ export default function NoteCard({
             if (!trimmed) return;
             setIsAddingCategory(true);
             try {
-              const updatedNote = await addCategoryToNote(note.id, trimmed);
-              setNewCategory("");
-              onUpdated?.(updatedNote);
-              
+              await addCategory(note.id, trimmed);
+              setNewCategory("");              
               deferFocus(categoryRef);
-            } catch(error) {
-              console.error("NoteCard - Add category failed.", error);
-              const message = "Failed to add category.";
-              notifyError(`${message}` + " Please try again.");
-              announce(message, "assertive");
             } finally {
               setIsAddingCategory(false);
             };
