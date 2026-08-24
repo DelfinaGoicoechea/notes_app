@@ -3,9 +3,33 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { toast } from 'react-hot-toast';
 import NoteCard from '../../src/components/NoteCard';
 import * as noteService from '../../src/services/notes.service';
+import { NotesProvider } from '../../src/contexts/NotesContext';
 
 vi.mock('react-hot-toast');
 vi.mock('../../src/services/notes.service');
+
+function renderNoteCard(
+  ui: React.ReactElement,
+  view: 'active' | 'archived' = "active"
+) {
+  return render(
+    <NotesProvider view={view}>
+      {ui}
+    </NotesProvider>
+  );
+}
+
+function getCategoryInput() {
+  return screen.getByLabelText(/add category to note/i);
+}
+
+function getAddCategoryButton() {
+  return screen.getByRole('button', { name: /add category/i });
+}
+
+function expectToastError(message: string) {
+  expect(toast.error).toHaveBeenCalledWith(message, undefined);
+}
 
 describe('NoteCard - Error Handling (FE-003)', () => {
   const mockNote = {
@@ -25,6 +49,8 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(noteService.getActiveNotes).mockResolvedValue([]);
+    vi.mocked(noteService.getArchivedNotes).mockResolvedValue([]);
   });
 
   describe('Update Note', () => {
@@ -34,8 +60,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
         new Error('Connection failed')
       );
 
-      const mockOnUpdate = vi.fn();
-      render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       //ACT: enter edit mode
       fireEvent.click(screen.getByRole('button', { name: /edit/i }));
@@ -46,12 +71,10 @@ describe('NoteCard - Error Handling (FE-003)', () => {
       fireEvent.click(screen.getByRole('button', { name: /save/i }));
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith(
-          'Failed to save note changes. Please try again.'
-        );
+        expectToastError('Failed to save note changes. Please try again.');
       });
 
-      expect(mockOnUpdate).not.toHaveBeenCalled();
+      expect(titleInput).toHaveValue('Updated');
       //didn't exit edit mode
       expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
@@ -63,7 +86,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
         new Error('Connection failed')
       );
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       fireEvent.click(screen.getByRole('button', { name: /edit/i } ));
 
@@ -91,7 +114,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
       const mockError = new Error('Network timeout');
       vi.mocked(noteService.updateNote).mockRejectedValue(mockError);
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       fireEvent.click(screen.getByRole('button', { name: /edit/i }));
 
@@ -102,7 +125,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'NoteCard - Update note failed.',
+          'NotesContext - Update note failed.',
           mockError
         );
       });
@@ -110,8 +133,8 @@ describe('NoteCard - Error Handling (FE-003)', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    test('updates note and calls onUpdated when update succeeds', async () => {
-      //edit title/content, click save, exits edit mode, calls onUpdated
+    test('updates note when update succeeds', async () => {
+      //edit title/content, click save, exits edit mode
       const mockUpdatedNote = {
         ...mockNote,
         title: 'Updated Title',
@@ -119,8 +142,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
       };
       vi.mocked(noteService.updateNote).mockResolvedValue(mockUpdatedNote);
 
-      const mockOnUpdate = vi.fn();
-      render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       fireEvent.click(screen.getByRole('button', { name: /edit/i }));
 
@@ -132,8 +154,10 @@ describe('NoteCard - Error Handling (FE-003)', () => {
       fireEvent.click(screen.getByRole('button', { name: /save/i } ));
 
       await waitFor(() => {
-        expect(mockOnUpdate).toHaveBeenCalledTimes(1);
-        expect(mockOnUpdate).toHaveBeenCalledWith(mockUpdatedNote);
+        expect(noteService.updateNote).toHaveBeenCalledWith(1, {
+          title: 'Updated Title',
+          content: 'Updated content',
+        });
       });
 
       //did exit edit mode
@@ -148,23 +172,18 @@ describe('NoteCard - Error Handling (FE-003)', () => {
         new Error('API error')
       );
 
-      const mockOnUpdate = vi.fn();
-      render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
-      const categoryInput = screen.getByPlaceholderText(/add category/i);
+      const categoryInput = getCategoryInput();
       fireEvent.change(categoryInput, { target: { value: 'personal' } });
 
-      //uses ^ and $ to match ONLY Add button (not for e.g. "Add category")
-      fireEvent.click(screen.getByRole('button', { name: /^add$/i }));
+      fireEvent.click(getAddCategoryButton());
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith(
-          'Failed to add category. Please try again.'
-        );
+        expectToastError('Failed to add category. Please try again.');
       });
 
       expect(categoryInput).toHaveValue('personal');
-      expect(mockOnUpdate).not.toHaveBeenCalled();
     });
 
     test('logs error to console when add fails', async () => {
@@ -173,15 +192,15 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
       vi.mocked(noteService.addCategoryToNote).mockRejectedValue(mockError);
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
-      const categoryInput = screen.getByPlaceholderText(/add category/i);
+      const categoryInput = getCategoryInput();
       fireEvent.change(categoryInput, { target: { value: 'personal' } });
-      fireEvent.click(screen.getByRole('button', { name: /^add$/i }));
+      fireEvent.click(getAddCategoryButton());
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'NoteCard - Add category failed.',
+          'NotesContext - Add category failed.',
           mockError
         );
       });
@@ -204,17 +223,15 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
       vi.mocked(noteService.addCategoryToNote).mockResolvedValue(mockUpdatedNote);
 
-      const mockOnUpdate = vi.fn();
-      render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
-      const categoryInput = screen.getByPlaceholderText(/add category/i);
+      const categoryInput = getCategoryInput();
       fireEvent.change(categoryInput, { target: { value: 'personal' } });
-      fireEvent.click(screen.getByRole('button', { name: /^add$/i } ));
+      fireEvent.click(getAddCategoryButton());
 
       await waitFor(() => {
         expect(categoryInput).toHaveValue('');
-        expect(mockOnUpdate).toHaveBeenCalledTimes(1);
-        expect(mockOnUpdate).toHaveBeenCalledWith(mockUpdatedNote);
+        expect(noteService.addCategoryToNote).toHaveBeenCalledWith(1, 'personal');
       });
     });
   });
@@ -226,18 +243,13 @@ describe('NoteCard - Error Handling (FE-003)', () => {
         new Error('API error')
       );
 
-      const mockOnUpdate = vi.fn();
-      render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       fireEvent.click(screen.getByRole('button', { name: /remove work category/i }));
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith(
-          'Failed to remove category. Please try again.'
-        );
+        expectToastError('Failed to remove category. Please try again.');
       });
-
-      expect(mockOnUpdate).not.toHaveBeenCalled();
     });
 
     test('logs error to console when remove fails', async () => {
@@ -246,13 +258,13 @@ describe('NoteCard - Error Handling (FE-003)', () => {
 
       vi.mocked(noteService.removeCategoryFromNote).mockRejectedValue(mockError);
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       fireEvent.click(screen.getByRole('button', { name: /remove work category/i }));
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'NoteCard - Remove category failed.',
+          'NotesContext - Remove category failed.',
           mockError
         )
       });
@@ -268,8 +280,7 @@ describe('NoteCard - Error Handling (FE-003)', () => {
       };
       vi.mocked(noteService.removeCategoryFromNote).mockResolvedValue(mockUpdatedNote);
 
-      const mockOnUpdate = vi.fn();
-      render(<NoteCard note={mockNote} onUpdated={mockOnUpdate} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       fireEvent.click(screen.getByRole('button', { name: /remove work category/i }));
 
@@ -278,8 +289,6 @@ describe('NoteCard - Error Handling (FE-003)', () => {
           1,      //mockNote.id
           'work'  //category name
         );
-        expect(mockOnUpdate).toHaveBeenCalledTimes(1);
-        expect(mockOnUpdate).toHaveBeenCalledWith(mockUpdatedNote);
       });    
     });
   });
@@ -303,6 +312,8 @@ describe('NoteCard - Loading States (FE-004)', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(noteService.getActiveNotes).mockResolvedValue([]);
+    vi.mocked(noteService.getArchivedNotes).mockResolvedValue([]);
   });
 
   describe('Update Note Loading State', () => {
@@ -315,7 +326,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
         }), 100))
       );
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       // ACT: Enter edit mode and save
       fireEvent.click(screen.getByRole('button', { name: /edit/i }));
@@ -341,7 +352,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
         }), 100))
       );
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       // ACT
       fireEvent.click(screen.getByRole('button', { name: /edit/i }));
@@ -362,7 +373,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
         }), 100))
       );
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       // ACT
       fireEvent.click(screen.getByRole('button', { name: /edit/i }));
@@ -389,7 +400,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
         }), 100))
       );
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       // ACT
       fireEvent.click(screen.getByRole('button', { name: /edit/i }));
@@ -405,7 +416,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
   describe('Archive/Delete Loading States (from hooks)', () => {
     test('disables archive button when archivingNoteId matches note id', () => {
       // ARRANGE & ACT
-      render(
+      renderNoteCard(
         <NoteCard 
           note={mockNote} 
           onArchive={vi.fn()} 
@@ -420,7 +431,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
 
     test('shows "Archiving..." text when archivingNoteId matches', () => {
       // ARRANGE & ACT
-      render(
+      renderNoteCard(
         <NoteCard 
           note={mockNote} 
           onArchive={vi.fn()} 
@@ -435,7 +446,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
     test('shows "Unarchiving..." text for archived note being unarchived', () => {
       // ARRANGE & ACT
       const archivedNote = { ...mockNote, archived: true };
-      render(
+      renderNoteCard(
         <NoteCard 
           note={archivedNote} 
           onArchive={vi.fn()} 
@@ -449,7 +460,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
 
     test('does not disable archive button for different note', () => {
       // ARRANGE & ACT: archivingNoteId is 2, but this note is 1
-      render(
+      renderNoteCard(
         <NoteCard 
           note={mockNote} 
           onArchive={vi.fn()} 
@@ -464,7 +475,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
 
     test('disables delete button when deletingNoteId matches note id', () => {
       // ARRANGE & ACT
-      render(
+      renderNoteCard(
         <NoteCard 
           note={mockNote} 
           onDelete={vi.fn()} 
@@ -481,7 +492,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
 
     test('shows "Deleting..." text when deletingNoteId matches', () => {
       // ARRANGE & ACT
-      render(
+      renderNoteCard(
         <NoteCard 
           note={mockNote} 
           onDelete={vi.fn()} 
@@ -509,11 +520,11 @@ describe('NoteCard - Loading States (FE-004)', () => {
         }), 100))
       );
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       // ACT
-      const categoryInput = screen.getByPlaceholderText(/add category/i);
-      const addButton = screen.getByRole('button', { name: /^add$/i });
+      const categoryInput = getCategoryInput();
+      const addButton = getAddCategoryButton();
 
       fireEvent.change(categoryInput, { target: { value: 'personal' } });
       fireEvent.click(addButton);
@@ -542,12 +553,12 @@ describe('NoteCard - Loading States (FE-004)', () => {
         }), 100))
       );
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       // ACT
-      const categoryInput = screen.getByPlaceholderText(/add category/i);
+      const categoryInput = getCategoryInput();
       fireEvent.change(categoryInput, { target: { value: 'personal' } });
-      fireEvent.click(screen.getByRole('button', { name: /^add$/i }));
+      fireEvent.click(getAddCategoryButton());
 
       // ASSERT
       await waitFor(() => {
@@ -569,12 +580,12 @@ describe('NoteCard - Loading States (FE-004)', () => {
         }), 100))
       );
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       // ACT
-      const categoryInput = screen.getByPlaceholderText(/add category/i);
+      const categoryInput = getCategoryInput();
       fireEvent.change(categoryInput, { target: { value: 'personal' } });
-      fireEvent.click(screen.getByRole('button', { name: /^add$/i }));
+      fireEvent.click(getAddCategoryButton());
 
       // ASSERT: Check for multiple "Loading..." (one for spinner)
       await waitFor(() => {
@@ -594,7 +605,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
         }), 100))
       );
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       // ACT
       const categoryButton = screen.getByRole('button', { name: /remove work category/i });
@@ -623,7 +634,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
         }), 100))
       );
 
-      render(<NoteCard note={multiCategoryNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={multiCategoryNote} />);
 
       // ACT: Remove 'work' category
       const workButton = screen.getByRole('button', { name: /remove work category/i });
@@ -648,7 +659,7 @@ describe('NoteCard - Loading States (FE-004)', () => {
       });
       vi.mocked(noteService.updateNote).mockReturnValue(updatePromise);
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       // ACT: Click save multiple times
       fireEvent.click(screen.getByRole('button', { name: /edit/i }));
@@ -680,11 +691,11 @@ describe('NoteCard - Loading States (FE-004)', () => {
       });
       vi.mocked(noteService.addCategoryToNote).mockReturnValue(addPromise);
 
-      render(<NoteCard note={mockNote} onUpdated={vi.fn()} />);
+      renderNoteCard(<NoteCard note={mockNote} />);
 
       // ACT: Try to add category multiple times
-      const categoryInput = screen.getByPlaceholderText(/add category/i);
-      const addButton = screen.getByRole('button', { name: /^add$/i });
+      const categoryInput = getCategoryInput();
+      const addButton = getAddCategoryButton();
 
       fireEvent.change(categoryInput, { target: { value: 'test' } });
       fireEvent.click(addButton);

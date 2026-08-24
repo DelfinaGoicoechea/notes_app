@@ -69,6 +69,8 @@ export default function NoteCard({
 
       resetTitleValidation();
       setIsEditing(false);
+    } catch {
+      // Context handles user-facing errors.
     } finally {
       setIsSaving(false);
     };
@@ -177,6 +179,8 @@ export default function NoteCard({
                   try {
                     await removeCategory(note.id, c.name);
                     deferFocus(categoryRef);
+                  } catch {
+                    // Context handles user-facing errors.
                   } finally {
                     setRemovingCategoryId(null);
                   };
@@ -202,6 +206,8 @@ export default function NoteCard({
               await addCategory(note.id, trimmed);
               setNewCategory("");              
               deferFocus(categoryRef);
+            } catch {
+              // Context handles user-facing errors.
             } finally {
               setIsAddingCategory(false);
             };

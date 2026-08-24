@@ -1,141 +1,77 @@
 # FE-005: Search Functionality - Test Coverage Summary
 
 ## Test Results
-✅ **All 77 new tests added**
+✅ **Search coverage maintained after FE-007 context refactor**
 
-## New Tests Added
+Search/filter behavior is tested at the service layer, in `NotesContext`, and in the `Notes` UI component.
 
-### 1. Service Layer Tests (13 new tests)
-**File:** `tests/services/notes.service.test.ts` *(NEW FILE)*
+## Test Coverage by File
 
-#### getActiveNotes (6 tests)
+### 1. Service Layer Tests (12 tests)
+**File:** `tests/services/notes.service.test.ts`
+
+#### getActiveNotes / getArchivedNotes
 - ✅ Sends request without query params when no filters provided
-- ✅ Sends search parameter when search term provided
-- ✅ Sends category parameter when category provided
-- ✅ Sends both category and search parameters when both provided
+- ✅ Sends search and/or category parameters when provided
 - ✅ Returns notes data from API response
-- ✅ Handles empty search string as undefined
-
-#### getArchivedNotes (4 tests)
-- ✅ Sends request without query params when no filters provided
-- ✅ Sends search parameter when search term provided
-- ✅ Sends both category and search parameters when both provided
-- ✅ Returns archived notes data from API response
-
-#### Search Parameter Handling (3 tests)
-- ✅ Allows search with special characters
-- ✅ Allows search with multiple words
+- ✅ Handles empty/whitespace search as undefined
+- ✅ Allows search with special characters and multiple words
 
 ---
 
-### 2. useActive Hook Tests (15 new tests)
-**File:** `tests/pages/notes/hooks/useActive.test.ts`
+### 2. NotesContext Tests (2 search-related tests)
+**File:** `tests/contexts/NotesContext.test.tsx`
 
-#### Search State Management (3 tests)
-- ✅ Initializes with empty search string
-- ✅ Updates search state when setSearch is called
-- ✅ Exports search and setSearch in return object
+- ✅ Loads active vs archived notes based on `view`
+- ✅ Sends trimmed search and category to the API after debounce
 
-#### Search Filtering (4 tests)
-- ✅ Fetches notes with search parameter when search is set
-- ✅ Trims search value before sending to API
-- ✅ Sends undefined when search is empty string
-- ✅ Sends undefined when search is only whitespace
-
-#### Combined Search and Category Filtering (4 tests)
-- ✅ Sends both category and search parameters when both are set
-- ✅ Category filter continues working with empty search
-- ✅ Clearing search while category is set maintains category filter
-
-#### Search Debouncing (2 tests)
-- ✅ Debounces search input with 300ms delay
-- ✅ Debounces both category and search changes together
-
-#### Search with Loading States (1 test)
-- ✅ Shows loading state when search triggers fetch
+Debouncing (300ms) is covered by waiting for the second fetch after filter changes.
 
 ---
 
-### 3. useArchived Hook Tests (15 new tests)
-**File:** `tests/pages/notes/hooks/useArchived.test.ts`
+### 3. Notes Component Tests (35 tests)
+**File:** `tests/pages/notes/components/Notes.test.tsx`
 
-#### Search State Management (3 tests)
-- ✅ Initializes with empty search string
-- ✅ Updates search state when setSearch is called
-- ✅ Exports search and setSearch in return object
+Mocks `useNotes()` to test search UI without full integration:
 
-#### Search Filtering (4 tests)
-- ✅ Fetches archived notes with search parameter when search is set
-- ✅ Trims search value before sending to API
-- ✅ Sends undefined when search is empty string
-- ✅ Sends undefined when search is only whitespace
-
-#### Combined Search and Category Filtering (4 tests)
-- ✅ Sends both category and search parameters when both are set
-- ✅ Category filter continues working with empty search
-- ✅ Clearing search while category is set maintains category filter
-
-#### Search Debouncing (2 tests)
-- ✅ Debounces search input with 300ms delay
-- ✅ Debounces both category and search changes together
-
-#### Search with Loading States (1 test)
-- ✅ Shows loading state when search triggers fetch
-
----
-
-### 4. Notes Component Tests (34 new tests)
-**File:** `tests/pages/notes/components/Notes.test.tsx` *(NEW FILE)*
-
-#### Search Input UI (8 tests)
+#### Search Input UI (6 tests)
 - ✅ Renders search input above category filter
-- ✅ Search input has correct placeholder text
-- ✅ Search input is prominently placed and easily discoverable
-- ✅ Updates search value when user types
-- ✅ Displays current search value in input
-- ✅ Search input is always a controlled component with string value
+- ✅ Correct placeholder (`e.g. shopping`)
+- ✅ Updates search via `setSearch`
+- ✅ Displays current search value
+- ✅ Controlled input with string value
 
 #### Search Clear Button (3 tests)
-- ✅ Renders clear button next to search input
-- ✅ Clear button clears only search, not category
-- ✅ Clear button works when search has value
+- ✅ Clear search button present
+- ✅ Clears only search, not category
+- ✅ Works when search has value
 
 #### Result Count Display (7 tests)
-- ✅ Shows result count when search is active
-- ✅ Shows result count when category filter is active
-- ✅ Shows result count when both filters are active
-- ✅ Does not show result count when no filters are active
-- ✅ Uses singular "note" for single result
-- ✅ Uses plural "notes" for multiple results
-- ✅ Shows "0 notes found" when filters return no results
+- ✅ Shows count when search/category/both active
+- ✅ Hides count when no filters
+- ✅ Singular/plural wording
+- ✅ Hides count when no results (shows empty state instead)
 
-#### Empty State Messages (8 tests)
-- ✅ Shows search-specific empty state when search returns no results
-- ✅ Shows category-specific empty state when category filter returns no results
-- ✅ Shows combined empty state when both search and category return no results
-- ✅ Shows default empty state when no filters and no notes
-- ✅ Shows archived empty state for archived page with no filters
-- ✅ Handles whitespace-only search as empty
-- ✅ Handles whitespace-only category as empty
+#### Empty State Messages (7 tests)
+- ✅ Search-, category-, and combined-filter empty states
+- ✅ Default and archived empty states
+- ✅ Whitespace-only filters treated as empty
 
-#### Search Works with Category Filter (3 tests)
-- ✅ Both search and category inputs can have values simultaneously
-- ✅ Clearing search does not affect category filter
-- ✅ Clearing category does not affect search filter
+#### Search + Category Interaction (3 tests)
+- ✅ Both filters can have values
+- ✅ Clearing one filter does not clear the other
 
-#### Search UI with Loading State (2 tests)
-- ✅ Search input remains enabled during loading
-- ✅ Shows spinner when loading with search active
+#### Loading + Display + Accessibility (9 tests)
+- ✅ Search enabled during loading; spinner only on first load
+- ✅ Filtered notes display; cards stay interactive
+- ✅ Accessible labels for inputs and clear buttons
 
-#### Search Integration with Notes Display (3 tests)
-- ✅ Displays filtered notes when search is active
-- ✅ Shows result count matching displayed notes
-- ✅ All note cards remain interactive when search is active
+---
 
-#### Accessibility (3 tests)
-- ✅ Search input has proper accessible name
-- ✅ Clear buttons have descriptive accessible names
-- ✅ Result count is visible to screen readers
+## Removed (superseded by FE-007)
+
+- ~~`tests/pages/notes/hooks/useActive.test.ts`~~ — search state/debounce moved to `NotesContext`
+- ~~`tests/pages/notes/hooks/useArchived.test.ts`~~ — same
 
 ---
 
@@ -143,24 +79,20 @@
 
 | Acceptance Criteria | Status | Test Location |
 |---------------------|--------|---------------|
-| Add search input above category filter | ✅ Tested | Notes.test.tsx |
-| Search matches title and content (case-insensitive) | ✅ Backend | Integration verified |
-| Search works with category filter (AND logic) | ✅ Tested | notes.service.test.ts, useActive.test.ts, useArchived.test.ts |
-| Search updates with 300ms debouncing | ✅ Tested | useActive.test.ts, useArchived.test.ts |
+| Search input above category filter | ✅ Tested | Notes.test.tsx |
+| Search matches title/content (case-insensitive) | ✅ Backend | Integration verified |
+| Search + category AND logic | ✅ Tested | notes.service.test.ts, NotesContext.test.tsx |
+| 300ms debouncing | ✅ Tested | NotesContext.test.tsx |
 | Clear button clears only search | ✅ Tested | Notes.test.tsx |
-| Show count of matching notes | ✅ Tested | Notes.test.tsx |
-| Empty state when no results | ✅ Tested | Notes.test.tsx |
-| Search input prominently placed | ✅ Tested | Notes.test.tsx |
+| Result count | ✅ Tested | Notes.test.tsx |
+| Contextual empty states | ✅ Tested | Notes.test.tsx |
+| Search input discoverable | ✅ Tested | Notes.test.tsx |
 
 ---
 
 ## Key Testing Decisions
 
-1. **Service Consolidation**: Updated existing tests to use unified `getActiveNotes()` and `getArchivedNotes()` functions instead of separate category-specific functions
-2. **Mock Chaining**: Used `mockResolvedValueOnce()` to handle multiple sequential calls to the same mocked function
-3. **Debounce Testing**: All debounce tests use 1000ms timeout to account for 300ms delay + buffer
-4. **Controlled Inputs**: Tests verify inputs always receive string values, never `undefined`
-5. **Trimming Logic**: Verified that whitespace-only inputs are treated as undefined
-6. **AND Logic**: Explicitly tested that search + category filters work together
-7. **Empty States**: Comprehensive testing of 4 different empty state scenarios
-8. **Independent Clearing**: Verified that clearing one filter doesn't affect the other
+1. **Service tests** verify API params (trimming, combined filters)
+2. **Context tests** verify debounced fetch calls the right endpoint with trimmed values
+3. **Notes component tests** mock `useNotes` to isolate UI behavior
+4. **Placeholder/label updates** reflected current UI (`Search notes`, `e.g. shopping`)

@@ -36,6 +36,8 @@ export default function NoteForm() {
       requestAnimationFrame(() => {
         titleRef.current?.focus();
       });
+    } catch {
+      // Context handles user-facing errors.
     } finally {
       setIsCreating(false);
     };
