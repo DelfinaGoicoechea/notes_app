@@ -3,7 +3,7 @@ import NoteForm from "../../../components/NoteForm";
 import Spinner from "../../../components/Spinner";
 import { announce } from "../../../a11y/announce";
 import { focusTarget, getFocusTargetAfterRemoval } from "../../../utils/focusTarget";
-import { useNotes } from "../hooks/useNotes";
+import { useNotes } from "../../../hooks/useNotes";
 
 
 interface NotesProps {
@@ -14,6 +14,7 @@ interface NotesProps {
 export function Notes({ title, showForm }: NotesProps) {
   const {
     notes,
+    view,
     category,
     setCategory,
     search,
@@ -41,7 +42,7 @@ export function Notes({ title, showForm }: NotesProps) {
     const isCurrentlyArchived = note?.archived ?? false;
     const target = getFocusTargetAfterRemoval(notes, id, showForm);
 
-    const isOk = showForm
+    const isOk = view === "active"
       ? await archiveNote(id)
       : await unarchiveNote(id);
     if(!isOk) return;
@@ -74,7 +75,7 @@ export function Notes({ title, showForm }: NotesProps) {
       };
     }
 
-    if (showForm) {
+    if (view === "active") {
       return {
         headline: "No notes yet",
         subtext: "Create your first note above to get started"

@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
 import { EMPTY_TITLE_MESSAGE, useRequiredTitle } from "../hooks/useRequiredTitle";
-import { useNotes } from "../pages/notes/hooks/useNotes";
+import { useNotes } from "../hooks/useNotes";
 
 
 export default function NoteForm() {

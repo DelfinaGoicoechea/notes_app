@@ -3,9 +3,9 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { Notes } from '../../../../src/pages/notes/components/Notes';
 import type { Note } from '../../../../src/types/note';
 import type { NotesContextValue } from '../../../../src/contexts/NotesContext';
-import { useNotes } from '../../../../src/pages/notes/hooks/useNotes';
+import { useNotes } from '../../../../src/hooks/useNotes';
 
-vi.mock('../../../../src/pages/notes/hooks/useNotes');
+vi.mock('../../../../src/hooks/useNotes');
 
 const mockUseNotes = vi.mocked(useNotes);
 
@@ -36,6 +36,7 @@ describe('Notes Component - Search UI (FE-005)', () => {
   ): NotesContextValue {
     return {
       notes: mockNotes,
+      view: "active",
       category: '',
       setCategory: vi.fn(),
       search: '',
@@ -240,7 +241,7 @@ describe('Notes Component - Search UI (FE-005)', () => {
     });
 
     test('shows archived empty state for archived page with no filters', () => {
-      renderNotes({ showForm: false }, { search: '', category: '', notes: [] });
+      renderNotes({ showForm: false }, { view: 'archived', search: '', category: '', notes: [] });
 
       expect(screen.getByText(/no archived notes/i)).toBeInTheDocument();
     });

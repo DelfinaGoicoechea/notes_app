@@ -16,6 +16,7 @@ import {
 
 export type NotesContextValue = {
   notes: Note[];
+  view: NotesView;
   category: string;
   setCategory: (value: string) => void;
   search: string;
@@ -33,7 +34,7 @@ export type NotesContextValue = {
   removeCategory: (id: number, name: string) => Promise<Note>;
 };
 
-type NotesView = "active" | "archived";
+export type NotesView = "active" | "archived";
 
 export const NotesContext = createContext<NotesContextValue | undefined>(undefined);
 
@@ -192,6 +193,7 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
   return (
     <NotesContext.Provider value={{
       notes,
+      view,
       category,
       setCategory,
       search,
@@ -199,7 +201,7 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
       isLoading,
       archivingNoteId,
       deletingNoteId,
-      getNotes, //
+      getNotes,
       createNote,
       updateNote,
       deleteNote,

@@ -2,7 +2,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import type { ReactNode } from 'react';
 import { NotesProvider } from '../../src/contexts/NotesContext';
-import { useNotes } from '../../src/pages/notes/hooks/useNotes';
+import { useNotes } from '../../src/hooks/useNotes';
 import * as noteService from '../../src/services/notes.service';
 import type { Note } from '../../src/types/note';
 

@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { describe, test, expect } from 'vitest';
-import { useNotes } from '../../../../src/pages/notes/hooks/useNotes';
-import { NotesProvider } from '../../../../src/contexts/NotesContext';
+import { useNotes } from '../../src/hooks/useNotes';
+import { NotesProvider } from '../../src/contexts/NotesContext';
 
 describe('useNotes', () => {
   test('throws when used outside NotesProvider', () => {
