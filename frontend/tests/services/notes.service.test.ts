@@ -1,19 +1,20 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { getActiveNotes, getArchivedNotes } from '../../src/services/notes.service';
 import { api } from '../../src/api/api';
+import type { Note } from '../../src/types/note';
 
 vi.mock('../../src/api/api');
 
 describe('Notes Service - Search Functionality (FE-005)', () => {
-  const mockNotes = [
+  const mockNotes: Note[] = [
     {
       id: 1,
       title: 'Meeting Notes',
       content: 'Discuss project timeline',
       archived: false,
       categories: [],
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
     },
     {
       id: 2,
@@ -21,8 +22,8 @@ describe('Notes Service - Search Functionality (FE-005)', () => {
       content: 'Q1 financial summary',
       archived: false,
       categories: [],
-      createdAt: new Date('2024-01-02'),
-      updatedAt: new Date('2024-01-02'),
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
     }
   ];
 

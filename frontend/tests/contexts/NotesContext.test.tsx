@@ -15,8 +15,8 @@ const mockNote: Note = {
   content: 'Test content',
   archived: false,
   categories: [],
-  createdAt: new Date('2024-01-01'),
-  updatedAt: new Date('2024-01-01'),
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
 };
 
 function createWrapper(view: 'active' | 'archived' = 'active') {

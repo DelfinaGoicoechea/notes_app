@@ -85,8 +85,8 @@ describe('NoteForm - Error Handling (FE-003)', () => {
       content: 'Success content',
       archived: false,
       categories: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
     };
     vi.mocked(noteService.createNote).mockResolvedValue(mockCreatedNote);
 
@@ -147,8 +147,8 @@ describe('NoteForm - Loading States (FE-004)', () => {
         content: 'Content',
         archived: false,
         categories: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
       }), 100))
     );
 
@@ -177,8 +177,8 @@ describe('NoteForm - Loading States (FE-004)', () => {
         content: 'Content',
         archived: false,
         categories: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
       }), 100))
     );
 
@@ -207,8 +207,8 @@ describe('NoteForm - Loading States (FE-004)', () => {
         content: 'Content',
         archived: false,
         categories: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
       }), 100))
     );
 
@@ -257,8 +257,8 @@ describe('NoteForm - Loading States (FE-004)', () => {
       content: '',
       archived: false,
       categories: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
     });
 
     await waitFor(() => {
@@ -274,8 +274,8 @@ describe('NoteForm - Loading States (FE-004)', () => {
         content: 'Content',
         archived: false,
         categories: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
       }), 100))
     );
 
@@ -297,8 +297,8 @@ describe('NoteForm - Loading States (FE-004)', () => {
       content: 'New Content',
       archived: false,
       categories: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
     };
     vi.mocked(noteService.createNote).mockResolvedValue(mockCreatedNote);
 

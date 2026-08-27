@@ -1,5 +1,5 @@
 import { api } from "../api/api";
-import type { Note } from "../types/note";
+import type { Note, NoteInput } from "../types/note";
 
 export const getActiveNotes = async (
   category?: string,
@@ -18,17 +18,14 @@ export const getArchivedNotes = async (
   return res.data;
 };
 
-export const createNote = async (data: {
-  title: string;
-  content: string;
-}): Promise<Note> => {
+export const createNote = async (data: NoteInput): Promise<Note> => {
   const res = await api.post("/notes", data);
   return res.data;
 };
 
 export const updateNote = async (
   id: number,
-  data: { title: string; content: string }
+  data: NoteInput
 ): Promise<Note> => {
   const res = await api.patch(`/notes/${id}`, data);
   return res.data;

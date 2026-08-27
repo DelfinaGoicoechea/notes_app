@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useState } from "react";
-import type { Note } from "../types/note"
+import type { Note, NoteInput } from "../types/note"
 import { notifyError } from "../utils/notifyError";
 import { announce } from "../a11y/announce";
 import { 
@@ -25,8 +25,8 @@ export type NotesContextValue = {
   archivingNoteId: number | null;
   deletingNoteId: number | null;
   getNotes: () => Promise<void>;
-  createNote: (data: { title: string, content: string }) => Promise<Note>;
-  updateNote: (id: number, data: { title: string, content: string }) => Promise<Note>;
+  createNote: (data: NoteInput) => Promise<Note>;
+  updateNote: (id: number, data: NoteInput) => Promise<Note>;
   deleteNote: (id: number) => Promise<boolean>;
   archiveNote: (id: number) => Promise<boolean>;
   unarchiveNote: (id: number) => Promise<boolean>;
@@ -76,7 +76,7 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
   }, [getNotes]);
 
   
-  const createNote = async (data: { title: string, content: string }) => {
+  const createNote = async (data: NoteInput) => {
     try {   
       const createdNote = await createNoteRequest(data);    
       setNotes((prev) => [createdNote, ...prev]);
@@ -90,7 +90,7 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
     };
   };
 
-  const updateNote = async (id: number, data: { title: string, content: string}) => {
+  const updateNote = async (id: number, data: NoteInput) => {
     try {
       const updatedNote = await updateNoteRequest(id, data);
       setNotes((prev) =>
