@@ -1,48 +1,36 @@
-import type { Note } from "../../../types/note";
 import NoteCard from "../../../components/NoteCard";
 import NoteForm from "../../../components/NoteForm";
 import Spinner from "../../../components/Spinner";
 import { announce } from "../../../a11y/announce";
 import { focusTarget, getFocusTargetAfterRemoval } from "../../../utils/focusTarget";
+import { useNotes } from "../../../hooks/useNotes";
 
 
 interface NotesProps {
   title: string;
   showForm: boolean;
-  notes: Note[];
-  handleArchive: (id: number) => Promise<boolean>;
-  handleDelete: (id: number) => Promise<boolean>;
-  handleNoteUpdated: (note: Note) => void;
-  handleNoteCreated?: (note: Note) => void;
-  category: string;
-  setCategory: (value: string) => void;
-  isLoading: boolean;
-  archivingNoteId: number | null;
-  deletingNoteId: number | null;
-  search: string;
-  setSearch: (value: string) => void;
 }
 
-export function Notes({
-  title,
-  showForm,
-  notes,
-  handleArchive,
-  handleDelete,
-  handleNoteUpdated,
-  handleNoteCreated,
-  category,
-  setCategory,
-  isLoading,
-  archivingNoteId,
-  deletingNoteId,
-  search,
-  setSearch,
-}: NotesProps) {
+export function Notes({ title, showForm }: NotesProps) {
+  const {
+    notes,
+    view,
+    category,
+    setCategory,
+    search,
+    setSearch,
+    isLoading,
+    archivingNoteId,
+    deletingNoteId,
+    deleteNote,
+    archiveNote,
+    unarchiveNote,
+  } = useNotes();
+
   const handleDeleteWithFocus = async (id: number) => {
     const target = getFocusTargetAfterRemoval(notes, id, showForm);
 
-    const isOk = await handleDelete(id);    
+    const isOk = await deleteNote(id);    
     if(!isOk) return;
 
     focusTarget(target);
@@ -54,7 +42,9 @@ export function Notes({
     const isCurrentlyArchived = note?.archived ?? false;
     const target = getFocusTargetAfterRemoval(notes, id, showForm);
 
-    const isOk = await handleArchive(id);
+    const isOk = view === "active"
+      ? await archiveNote(id)
+      : await unarchiveNote(id);
     if(!isOk) return;
 
     focusTarget(target);
@@ -85,7 +75,7 @@ export function Notes({
       };
     }
 
-    if (showForm) {
+    if (view === "active") {
       return {
         headline: "No notes yet",
         subtext: "Create your first note above to get started"
@@ -130,7 +120,6 @@ export function Notes({
             note={note}
             onArchive={handleArchiveWithFocus}
             onDelete={handleDeleteWithFocus}
-            onUpdated={handleNoteUpdated}
             archivingNoteId={archivingNoteId}
             deletingNoteId={deletingNoteId}
           />
@@ -145,7 +134,7 @@ export function Notes({
         {title}
       </h1>
 
-      {showForm && handleNoteCreated && <NoteForm onCreated={handleNoteCreated} />}
+      {showForm && <NoteForm />}
 
       <div className="flex flex-col gap-1">
           <label htmlFor="search-input" className="text-base font-medium text-gray-700">Search notes</label>

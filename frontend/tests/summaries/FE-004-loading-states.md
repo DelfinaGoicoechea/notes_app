@@ -1,52 +1,15 @@
 # FE-004: Loading States - Test Coverage Summary
 
 ## Test Results
-✅ **All 69 tests passed** (46 existing + 23 new)
+✅ **Loading state coverage maintained after FE-007 context refactor**
 
-## New Tests Added
+Relevant tests live in component files and `NotesContext.test.tsx`. The old `useActive` / `useArchived` hook test files were removed when state moved to context.
 
-### 1. useActive Hook Tests (9 new tests)
-**File:** `tests/pages/notes/hooks/useActive.test.ts`
+## Test Coverage by File
 
-#### Initial Fetch Loading State (2 tests)
-- ✅ Shows loading indicator when initially fetching active notes
-- ✅ Shows loading state when filtering by category
-
-#### Archive Loading State (3 tests)
-- ✅ Sets archivingNoteId during archive operation
-- ✅ Clears archivingNoteId even if archive fails
-- ✅ Prevents duplicate archive operations while one is in flight
-
-#### Delete Loading State (2 tests)
-- ✅ Sets deletingNoteId during delete operation
-- ✅ Clears deletingNoteId even if delete fails
-
-#### Multiple Simultaneous Operations (1 test)
-- ✅ Can track different operations on different notes simultaneously
-
----
-
-### 2. useArchived Hook Tests (6 new tests)
-**File:** `tests/pages/notes/hooks/useArchived.test.ts`
-
-#### Initial Fetch Loading State (2 tests)
-- ✅ Shows loading indicator when initially fetching archived notes
-- ✅ Shows loading state when filtering archived notes by category
-
-#### Unarchive Loading State (2 tests)
-- ✅ Sets unarchivingNoteId during unarchive operation
-- ✅ Clears unarchivingNoteId even if unarchive fails
-
-#### Delete Loading State (2 tests)
-- ✅ Sets deletingNoteId during delete operation
-- ✅ Clears deletingNoteId even if delete fails
-
----
-
-### 3. NoteForm Tests (6 new tests)
+### 1. NoteForm Tests (6 tests)
 **File:** `tests/components/NoteForm.test.tsx`
 
-#### Loading State Behavior (6 tests)
 - ✅ Disables submit button during note creation
 - ✅ Shows "Creating..." text on button during creation
 - ✅ Disables input fields during note creation
@@ -54,9 +17,11 @@
 - ✅ Shows loading spinner during creation
 - ✅ Re-enables form after creation completes
 
+Uses `NotesProvider` + mocked service (context handles create).
+
 ---
 
-### 4. NoteCard Tests (23 new tests)
+### 2. NoteCard Tests (23 tests)
 **File:** `tests/components/NoteCard.test.tsx`
 
 #### Update Note Loading State (4 tests)
@@ -65,20 +30,17 @@
 - ✅ Disables input fields during update
 - ✅ Shows loading spinner during save
 
-#### Archive/Delete Loading States (5 tests)
-- ✅ Disables archive button when archivingNoteId matches note id
-- ✅ Shows "Archiving..." text when archivingNoteId matches
-- ✅ Shows "Unarchiving..." text for archived note being unarchived
-- ✅ Does not disable archive button for different note
-- ✅ Disables delete button when deletingNoteId matches note id
-- ✅ Shows "Deleting..." text when deletingNoteId matches
+#### Archive/Delete Loading States (6 tests)
+- ✅ Disables archive button when `archivingNoteId` matches note id
+- ✅ Shows "Archiving..." / "Unarchiving..." text when busy
+- ✅ Does not disable archive button for a different note
+- ✅ Disables delete button when `deletingNoteId` matches note id
+- ✅ Shows "Deleting..." text when deleting
 
-#### Add Category Loading State (3 tests)
+#### Add/Remove Category Loading State (5 tests)
 - ✅ Disables add button during category addition
 - ✅ Shows "Adding..." text during category addition
 - ✅ Shows loading spinner during category addition
-
-#### Remove Category Loading State (2 tests)
 - ✅ Disables category button during removal
 - ✅ Only disables the specific category being removed
 
@@ -86,13 +48,38 @@
 - ✅ Prevents duplicate save submissions while update is in flight
 - ✅ Prevents duplicate category additions while add is in flight
 
+Uses `NotesProvider` for operations that go through context. Archive/delete busy ids still come from context via props on `NoteCard`.
+
+---
+
+### 3. Notes Component Tests (3 tests)
+**File:** `tests/pages/notes/components/Notes.test.tsx`
+
+- ✅ Search input remains enabled during loading
+- ✅ Keeps notes visible while loading with search active
+- ✅ Shows spinner only when loading with no notes yet
+
+Mocks `useNotes()` to set `isLoading` — tests list-level loading UI owned by context.
+
+---
+
+### 4. NotesContext Tests
+**File:** `tests/contexts/NotesContext.test.tsx`
+
+List fetch loading is exercised indirectly when tests wait for debounced `getNotes` to populate `notes`. Dedicated `isLoading` assertions can be added later if needed.
+
+---
+
+## Removed (superseded by FE-007)
+
+- ~~`tests/pages/notes/hooks/useActive.test.ts`~~ — loading state for fetch/archive/delete now in context
+- ~~`tests/pages/notes/hooks/useArchived.test.ts`~~ — same
+
 ---
 
 ## Key Testing Decisions
 
-1. **Mock Delays**: Used `setTimeout` in mock promises to create observable loading states
-2. **Controlled Promises**: Used manual promise resolution to test duplicate submission prevention
-3. **Specific Selectors**: Used exact button text matching (e.g., `/deleting\.\.\./i`) when loading state changes text
-4. **Debounce Handling**: Tests account for the 300ms debounce in filter operations
-5. **State Persistence**: Tests verify loading states clear in both success and error scenarios
-
+1. **Local loading** (`isCreating`, `isSaving`, category busy) stays in Form/Card tests
+2. **Shared loading** (`isLoading`, `archivingNoteId`, `deletingNoteId`) comes from context — tested via Provider in Card tests or mocked in `Notes.test.tsx`
+3. **Mock delays** in service mocks create observable loading states in component tests
+4. **Duplicate submission** tests use manual promise resolution

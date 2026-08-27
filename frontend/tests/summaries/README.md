@@ -1,15 +1,27 @@
 # Test Documentation Summaries
 
-This directory contains comprehensive test summaries for completed tickets. Each summary documents the test coverage, patterns used, and acceptance criteria verification for a specific feature or ticket.
+This directory contains test summaries for completed tickets. Each summary documents coverage, patterns used, and acceptance criteria verification.
 
 ## Index of Test Summaries
 
 ### Frontend Features
 
-| Ticket | Feature | Tests Added | Status | Summary |
-|--------|---------|-------------|--------|---------|
-| [FE-004](./FE-004-loading-states.md) | Loading States Across All Async Operations | 23 tests | ✅ Complete | Comprehensive loading state implementation with spinners, disabled states, and duplicate submission prevention |
-| [FE-005](./FE-005-search-functionality.md) | Note Title and Content Search | 77 tests | ✅ Complete | Full-text search with debouncing, combined filtering, result counts, and contextual empty states |
+| Ticket | Feature | Test Files | Status | Summary |
+|--------|---------|------------|--------|---------|
+| [FE-004](./FE-004-loading-states.md) | Loading States Across Async Operations | NoteForm, NoteCard, Notes, NotesContext | ✅ Complete | Spinners, disabled states, duplicate submission prevention |
+| [FE-005](./FE-005-search-functionality.md) | Note Title and Content Search | notes.service, NotesContext, Notes | ✅ Complete | Search UI, filters, debouncing, empty states |
+| [FE-007](./FE-007-context-state-management.md) | Context State Management | NotesContext, useNotes, updated component tests | ✅ Complete | Centralized notes state; replaced useActive/useArchived hook tests |
+
+**Current suite:** 92 tests across 6 files (all passing)
+
+| Test file | Tests |
+|-----------|-------|
+| `tests/components/NoteCard.test.tsx` | 27 |
+| `tests/components/NoteForm.test.tsx` | 10 |
+| `tests/pages/notes/components/Notes.test.tsx` | 35 |
+| `tests/services/notes.service.test.ts` | 12 |
+| `tests/contexts/NotesContext.test.tsx` | 6 |
+| `tests/pages/notes/hooks/useNotes.test.tsx` | 2 |
 
 ---
 
@@ -17,51 +29,10 @@ This directory contains comprehensive test summaries for completed tickets. Each
 
 When you complete a new ticket with tests:
 
-1. **Create a summary file:**
-   ```bash
-   touch frontend/tests/summaries/FE-XXX-feature-name.md
-   ```
-
-2. **Use consistent naming:**
-   - Format: `FE-XXX-feature-name.md`
-   - Use kebab-case for the feature name
-   - Examples:
-     - `FE-005-form-validation.md`
-     - `FE-006-data-persistence.md`
-     - `FE-007-search-functionality.md`
-
-3. **Include these sections:**
-   - Test Results (pass/fail counts)
-   - New Tests Added (organized by file)
-   - Acceptance Criteria Coverage
-   - Key Testing Decisions
-
-4. **Update this README:**
-   - Add a new row to the table above
-   - Link to your new summary file
-   - Mark status as ✅ Complete
-
----
-
-## Test Summary Template
-
-Create new summaries using this structure:
-
-```markdown
-# FE-XXX: [Feature Name] - Test Coverage Summary
-
-## Test Results
-✅ **All X tests passed** (Y existing + Z new)
-
-## New Tests Added
-[List by file/component]
-
-## Acceptance Criteria Coverage
-[Table mapping AC to tests]
-
-## Key Testing Decisions
-[Important implementation notes]
-```
+1. Create `frontend/tests/summaries/FE-XXX-feature-name.md`
+2. Use kebab-case for the feature name
+3. Include: Test Results, coverage by file, AC table, key decisions
+4. Add a row to the table above
 
 ---
 
@@ -71,14 +42,14 @@ Create new summaries using this structure:
 # Run all tests
 cd frontend && npm test
 
-# Run tests for a specific ticket's components
+# Run by area
 npm test NoteCard
-npm test useActive
+npm test NoteForm
+npm test NotesContext
+npm test useNotes
+npm test notes.service
 
-# View test coverage
-npm run test:coverage
-
-# Run tests with UI
+# Run with UI
 npm run test:ui
 ```
 
@@ -86,10 +57,10 @@ npm run test:ui
 
 ## Related Documentation
 
-- [Test Files](../) - Actual test implementation files
-- [Source Code](../../src/) - Application source code
-- [Project README](../../../README.md) - Project overview
+- [Test Files](../) — test implementation
+- [Source Code](../../src/) — application source
+- [Project README](../../../README.md) — project overview
 
 ---
 
-*Last Updated: Monday, July 20, 2026*
+*Last Updated: Monday, Aug 24, 2026*

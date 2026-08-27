@@ -1,23 +1,19 @@
 import React, { useRef, useState } from "react";
-import { createNote } from "../services/notes.service";
-import type { Note } from "../types/note";
 import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
-import { announce } from "../a11y/announce";
-import { notifyError } from "../utils/notifyError";
 import { EMPTY_TITLE_MESSAGE, useRequiredTitle } from "../hooks/useRequiredTitle";
+import { useNotes } from "../hooks/useNotes";
 
-interface NoteFormProps {
-  onCreated: (createdNote: Note) => void;
-}
 
-export default function NoteForm({ onCreated }: NoteFormProps) {
+export default function NoteForm() {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
   const titleRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  const { createNote } = useNotes();
 
   const {
     showError,
@@ -32,20 +28,16 @@ export default function NoteForm({ onCreated }: NoteFormProps) {
     if(!validateTitle()) return;
     setIsCreating(true);
     try {
-      const createdNote = await createNote({ title, content });
+      await createNote({ title, content });
       setTitle("");
       setContent("");
       
       resetTitleValidation();
-      onCreated(createdNote);
       requestAnimationFrame(() => {
         titleRef.current?.focus();
       });
-    } catch(error) {
-      console.error("NoteForm - Create note failed.", error);
-      const message = "Failed to create note.";
-      notifyError(`${message}` + " Please try again.");
-      announce(message, "assertive");
+    } catch {
+      // Context handles user-facing errors.
     } finally {
       setIsCreating(false);
     };
