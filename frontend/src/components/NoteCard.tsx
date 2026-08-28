@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import type { Note } from "../types/note";
+import type { Category, Note } from "../types/note";
 import Spinner from "./Spinner";
 import { createTextareaSubmitHandler } from "../utils/formKeyHandler";
 import { EMPTY_TITLE_MESSAGE, useRequiredTitle } from "../hooks/useRequiredTitle";
@@ -92,6 +92,34 @@ export default function NoteCard({
     setIsEditing(false);
   };
 
+  const handleRemoveCategory = async (category: Category): Promise<void> => {
+    setRemovingCategoryId(category.id);
+    try {
+      await removeCategory(note.id, category.name);
+      deferFocus(categoryRef);
+    } catch {
+      // Context handles user-facing errors.
+    } finally {
+      setRemovingCategoryId(null);
+    };
+  };
+
+  const handleAddCategory: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    const trimmed = newCategory.trim();
+    if (!trimmed) return;
+    setIsAddingCategory(true);
+    try {
+      await addCategory(note.id, trimmed);
+      setNewCategory("");              
+      deferFocus(categoryRef);
+    } catch {
+      // Context handles user-facing errors.
+    } finally {
+      setIsAddingCategory(false);
+    };
+  };
+
   const deferFocus = (ref: React.RefObject<HTMLElement | null>) => {
     requestAnimationFrame(() => {
       ref.current?.focus();
@@ -177,17 +205,7 @@ export default function NoteCard({
             {categories.map((c) => (
               <button
                 key={c.id}
-                onClick={async () => {
-                  setRemovingCategoryId(c.id);
-                  try {
-                    await removeCategory(note.id, c.name);
-                    deferFocus(categoryRef);
-                  } catch {
-                    // Context handles user-facing errors.
-                  } finally {
-                    setRemovingCategoryId(null);
-                  };
-                }}
+                onClick={() => handleRemoveCategory(c)}
                 disabled={removingCategoryId === c.id}
                 className="border rounded-full px-2 py-0.5 text-xs hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
                 title="Remove category"
@@ -200,21 +218,7 @@ export default function NoteCard({
         )}
 
         <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const trimmed = newCategory.trim();
-            if (!trimmed) return;
-            setIsAddingCategory(true);
-            try {
-              await addCategory(note.id, trimmed);
-              setNewCategory("");              
-              deferFocus(categoryRef);
-            } catch {
-              // Context handles user-facing errors.
-            } finally {
-              setIsAddingCategory(false);
-            };
-          }}
+          onSubmit={handleAddCategory}
           className="flex gap-2"
         >
           <label htmlFor={`add-category-${note.id}`} className="sr-only">Add category to note</label>
