@@ -41,7 +41,9 @@ export default function NoteCard({
     validateTitle,
     resetTitleValidation,
     titleInputClassName,
-  } = useRequiredTitle(title);
+    titleErrorId,
+    titleInputA11yProps,
+  } = useRequiredTitle(title, `edit-note-title-error-${note.id}`);
 
   useEffect(() => {
     if (!isEditing) {
@@ -116,9 +118,10 @@ export default function NoteCard({
             onChange={(e) => handleTitleChange(e.target.value, setTitle)}
             disabled={isSaving}
             autoComplete="off"
+            {...titleInputA11yProps}
           />
           {showError && (
-            <p id={`edit-note-title-error-${note.id}`} className="text-xs text-red-500">
+            <p id={titleErrorId} className="text-xs text-red-500" role="alert">
               {EMPTY_TITLE_MESSAGE}
             </p>
           )}
