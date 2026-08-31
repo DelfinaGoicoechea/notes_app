@@ -40,11 +40,11 @@ describe('NoteCard - Error Handling (FE-003)', () => {
     categories: [{ 
       id: 1, 
       name: 'work',
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
     }],
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
   };
 
   beforeEach(() => {
@@ -216,8 +216,8 @@ describe('NoteCard - Error Handling (FE-003)', () => {
           {
           id: 2, 
           name: 'personal',
-          createdAt: new Date('2024-01-01'),
-          updatedAt: new Date('2024-01-01'),
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
         }],
       };
 
@@ -303,11 +303,11 @@ describe('NoteCard - Loading States (FE-004)', () => {
     categories: [{ 
       id: 1, 
       name: 'work',
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
     }],
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
   };
 
   beforeEach(() => {
@@ -514,8 +514,8 @@ describe('NoteCard - Loading States (FE-004)', () => {
           categories: [...mockNote.categories, { 
             id: 2, 
             name: 'personal',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: '2024-01-01T00:00:00.000Z',
+            updatedAt: '2024-01-01T00:00:00.000Z',
           }],
         }), 100))
       );
@@ -547,8 +547,8 @@ describe('NoteCard - Loading States (FE-004)', () => {
           categories: [...mockNote.categories, { 
             id: 2, 
             name: 'personal',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: '2024-01-01T00:00:00.000Z',
+            updatedAt: '2024-01-01T00:00:00.000Z',
           }],
         }), 100))
       );
@@ -574,8 +574,8 @@ describe('NoteCard - Loading States (FE-004)', () => {
           categories: [...mockNote.categories, { 
             id: 2, 
             name: 'personal',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: '2024-01-01T00:00:00.000Z',
+            updatedAt: '2024-01-01T00:00:00.000Z',
           }],
         }), 100))
       );
@@ -622,8 +622,8 @@ describe('NoteCard - Loading States (FE-004)', () => {
       const multiCategoryNote = {
         ...mockNote,
         categories: [
-          { id: 1, name: 'work', createdAt: new Date(), updatedAt: new Date() },
-          { id: 2, name: 'personal', createdAt: new Date(), updatedAt: new Date() },
+          { id: 1, name: 'work', createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z' },
+          { id: 2, name: 'personal', createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z' },
         ],
       };
 
@@ -711,8 +711,8 @@ describe('NoteCard - Loading States (FE-004)', () => {
         categories: [...mockNote.categories, {
           id: 2,
           name: 'test',
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
         }],
       });
 

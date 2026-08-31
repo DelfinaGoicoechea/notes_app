@@ -4,11 +4,6 @@ Shift+Enter creates a new line
 */
 
 import type { RefObject } from "react";
-/**
- * 
- * @param formRef 
- * @returns 
- */
 
 export const createTextareaSubmitHandler = (
   formRef: RefObject<HTMLFormElement | null>

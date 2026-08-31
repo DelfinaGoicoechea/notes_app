@@ -1,8 +1,8 @@
 export interface Category {
   id: number;
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Note {
@@ -11,6 +11,8 @@ export interface Note {
   content: string;
   archived: boolean;
   categories?: Category[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
+
+export type NoteInput = { title: string; content: string }

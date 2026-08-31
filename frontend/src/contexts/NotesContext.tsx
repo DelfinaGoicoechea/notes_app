@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useState } from "react";
-import type { Note } from "../types/note"
+import type { Note, NoteInput } from "../types/note"
 import { notifyError } from "../utils/notifyError";
 import { announce } from "../a11y/announce";
 import { 
@@ -13,6 +13,7 @@ import {
   addCategoryToNote,
   removeCategoryFromNote
 } from "../services/notes.service";
+import type { ToastOptions } from "react-hot-toast";
 
 export type NotesContextValue = {
   notes: Note[];
@@ -25,8 +26,8 @@ export type NotesContextValue = {
   archivingNoteId: number | null;
   deletingNoteId: number | null;
   getNotes: () => Promise<void>;
-  createNote: (data: { title: string, content: string }) => Promise<Note>;
-  updateNote: (id: number, data: { title: string, content: string }) => Promise<Note>;
+  createNote: (data: NoteInput) => Promise<Note>;
+  updateNote: (id: number, data: NoteInput) => Promise<Note>;
   deleteNote: (id: number) => Promise<boolean>;
   archiveNote: (id: number) => Promise<boolean>;
   unarchiveNote: (id: number) => Promise<boolean>;
@@ -37,6 +38,12 @@ export type NotesContextValue = {
 export type NotesView = "active" | "archived";
 
 export const NotesContext = createContext<NotesContextValue | undefined>(undefined);
+
+function reportFailure(logLabel: string, userMessage: string, error: unknown, toastOptions?: ToastOptions) {
+  console.error(logLabel, error);
+  notifyError(`${userMessage} Please try again.`, toastOptions);
+  announce(userMessage, "assertive");
+};
 
 export function NotesProvider({ children, view }: { children: React.ReactNode; view: NotesView }) {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -59,10 +66,12 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
       );
       setNotes(response);
     } catch (error) {
-      console.error(`NotesContext - Get ${view} notes failed.`, error);
-      const message = "Failed to load notes.";
-      notifyError(`${message}` + " Please try again.", { id: `load-${view}-notes-error` });
-      announce(message, "assertive");
+      reportFailure(
+        `NotesContext - Get ${view} notes failed.`,
+        "Failed to load notes.",
+        error,
+        { id: `load-${view}-notes-error` }
+      );
     } finally {
       setIsLoading(false);
     };
@@ -76,21 +85,22 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
   }, [getNotes]);
 
   
-  const createNote = async (data: { title: string, content: string }) => {
+  const createNote = async (data: NoteInput) => {
     try {   
       const createdNote = await createNoteRequest(data);    
       setNotes((prev) => [createdNote, ...prev]);
       return createdNote;
     } catch(error) {
-      console.error("NotesContext - Create note failed.", error);
-      const message = "Failed to create note.";
-      notifyError(`${message}` + " Please try again.");
-      announce(message, "assertive");
+      reportFailure(
+        "NotesContext - Create note failed.",
+        "Failed to create note.",
+        error
+      );
       throw error;
     };
   };
 
-  const updateNote = async (id: number, data: { title: string, content: string}) => {
+  const updateNote = async (id: number, data: NoteInput) => {
     try {
       const updatedNote = await updateNoteRequest(id, data);
       setNotes((prev) =>
@@ -98,10 +108,11 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
       );
       return updatedNote;
     } catch(error) {
-      console.error("NotesContext - Update note failed.", error);
-      const message = "Failed to save note changes.";
-      notifyError(`${message}` + " Please try again.");
-      announce(message, "assertive");
+      reportFailure(
+        "NotesContext - Update note failed.",
+        "Failed to save note changes.",
+        error
+      );
       throw error;
     };
   };
@@ -113,10 +124,11 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
       setNotes((prev) => prev.filter((note) => note.id !== id));
       return true;
     } catch(error) {
-      console.error("NotesContext - Delete note failed.", error);
-      const message = "Failed to delete note.";
-      notifyError(`${message}` + " Please try again.");
-      announce(message, "assertive");
+      reportFailure(
+        "NotesContext - Delete note failed.",
+        "Failed to delete note.",
+        error
+      );
       return false;
     } finally {
       setDeletingNoteId(null);
@@ -130,10 +142,11 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
       setNotes((prev) => prev.filter((note) => note.id !== id));
       return true;
     } catch(error) {
-      console.error("NotesContext - Archive note failed.", error);
-      const message = "Failed to archive note.";
-      notifyError(`${message}` + " Please try again.");
-      announce(message, "assertive");
+      reportFailure(
+        "NotesContext - Archive note failed.",
+        "Failed to archive note.",
+        error
+      );
       return false;
     } finally {
       setArchivingNoteId(null);
@@ -147,10 +160,11 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
       setNotes((prev) => prev.filter((note) => note.id !== id));
       return true;
     } catch(error) {
-      console.error("NotesContext - Unarchive note failed.", error);
-      const message = "Failed to unarchive note.";
-      notifyError(`${message}` + " Please try again.");
-      announce(message, "assertive");
+      reportFailure(
+        "NotesContext - Unarchive note failed.",
+        "Failed to unarchive note.",
+        error
+      );
       return false;
     } finally {
       setArchivingNoteId(null);
@@ -165,10 +179,11 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
       );
       return updatedNote;
     } catch(error) {
-      console.error("NotesContext - Add category failed.", error);
-      const message = "Failed to add category.";
-      notifyError(`${message}` + " Please try again.");
-      announce(message, "assertive");
+      reportFailure(
+        "NotesContext - Add category failed.",
+        "Failed to add category.",
+        error
+      );
       throw error;
     };
   };
@@ -181,10 +196,11 @@ export function NotesProvider({ children, view }: { children: React.ReactNode; v
       );
       return updatedNote;
     } catch(error) {
-      console.error("NotesContext - Remove category failed.", error);
-      const message = "Failed to remove category.";
-      notifyError(`${message}` + " Please try again.");
-      announce(message, "assertive");
+      reportFailure(
+        "NotesContext - Remove category failed.",
+        "Failed to remove category.",
+        error
+      );
       throw error;
     };
   };

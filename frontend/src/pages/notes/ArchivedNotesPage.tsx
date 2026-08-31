@@ -1,8 +1,6 @@
 import { Notes } from "./components/Notes"
 import { NotesProvider } from "../../contexts/NotesContext"
 
-
-
 export const ArchivedNotesPage = () => {
 
   return (

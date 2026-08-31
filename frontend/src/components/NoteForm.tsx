@@ -21,7 +21,9 @@ export default function NoteForm() {
     validateTitle,
     resetTitleValidation,
     titleInputClassName,
-  } = useRequiredTitle(title);
+    titleErrorId,
+    titleInputA11yProps,
+  } = useRequiredTitle(title, "note-title-error");
 
   const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {  
     e.preventDefault();
@@ -62,9 +64,12 @@ export default function NoteForm() {
           onChange={(e) => handleTitleChange(e.target.value, setTitle)}
           disabled={isCreating}
           autoComplete="off"
+          {...titleInputA11yProps}
         />
         {showError && (
-          <p className="text-xs text-red-500">{EMPTY_TITLE_MESSAGE}</p>
+          <p id={titleErrorId} className="text-xs text-red-500" role="alert">
+            {EMPTY_TITLE_MESSAGE}
+          </p>
         )}
       </div>
 

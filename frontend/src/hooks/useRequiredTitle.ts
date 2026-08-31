@@ -14,7 +14,7 @@ function getTitleInputClassName(showError: boolean): string {
     : `${TITLE_INPUT_BASE} focus:ring-2 focus:ring-gray-300 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-gray-400`
 };
 
-export function useRequiredTitle(title: string) {
+export function useRequiredTitle(title: string, errorId: string) {
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState<boolean>(false);
   const showError = hasAttemptedSubmit && isBlankTitle(title);
 
@@ -41,5 +41,10 @@ export function useRequiredTitle(title: string) {
     validateTitle,
     resetTitleValidation,
     titleInputClassName: getTitleInputClassName(showError),
+    titleErrorId: errorId,
+    titleInputA11yProps: {
+      "aria-invalid": showError,
+      "aria-describedby": showError ? errorId : undefined,
+    },
   };
 }
