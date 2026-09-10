@@ -4,6 +4,10 @@ A full-stack Single Page Application for creating, organizing, and managing note
 
 The project was originally developed as a full-stack technical challenge and later refined with additional improvements focused on accessibility, user experience, and code quality.
 
+## Preview
+
+![Notes Management App active notes view](./docs/images/notes-app-preview.png)
+
 ## Features
 - Create, edit, and delete notes
 - Archive and unarchive notes
