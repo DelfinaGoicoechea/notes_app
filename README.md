@@ -1,50 +1,95 @@
-# Notes App (Full Stack)
+# Notes Management App
 
-SPA notes app with a NestJS REST API backend and a React + Vite frontend.
+A full-stack Single Page Application for creating, organizing, and managing notes. Built with React and TypeScript on the frontend and a NestJS REST API with SQLite on the backend.
 
-## Runtimes / tools (tested)
+The project was originally developed as a full-stack technical challenge and later refined with additional improvements focused on accessibility, user experience, and code quality.
 
-- **macOS / Linux**
-- **Node.js**: `v22.21.1`
-- **npm**: `10.9.4`
+## Features
+- Create, edit, and delete notes
+- Archive and unarchive notes
+- View active and archived notes separately
+- Add and remove categories from notes
+- Filter notes by category
+- Search notes by title or content
+- Form validation and user feedback
+- Keyboard-friendly interactions and focus management
+- Screen reader announcements for relevant user actions
 
-## Tech stack
+## Tech Stack
+### Frontend
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- Axios
 
-- **Backend**: NestJS `^11.0.1`, TypeORM `^0.3.28`, SQLite (`sqlite3` `^5.1.7`)
-- **Frontend**: React `^19.2.5`, Vite `^8.0.9`, Axios `^1.15.2`
+### Backend
+- Node.js
+- NestJS
+- TypeORM
+- SQLite
+- REST API
 
-## One-command run
+### Testing & Tools
+- Vitest
+- React Testing Library
+- Git
 
-From repo root:
+## Accessibility
+Accessibility was considered throughout the frontend implementation, including:
+- Keyboard navigation and interaction
+- Focus management after editing, deleting, archiving, and unarchiving notes
+- Accessible form labels and validation feedback
+- ARIA live regions for screen reader announcements
+- Appropriate ARIA attributes and semantic markup
 
-```bash
-./run.sh
+## Project Structure
+```text
+notes_app/ 
+├── backend/       NestJS REST API and database layer 
+├── frontend/      React + TypeScript SPA 
+├── CHALLENGE.md   Original technical challenge requirements 
+├── run.sh         One-command setup and startup script 
+└── README.md
 ```
 
-What it does:
+## Getting Started
+### Requirements
 
-- Installs dependencies in `backend/` and `frontend/`
-- Creates `backend/.env` and `frontend/.env` if missing
-- Starts backend + frontend (auto-picks free ports if defaults are busy)
-- Opens the frontend URL in your browser (best-effort)
+Tested with:
+- macOS / Linux
+- Node.js `v22.21.1`
+- npm `10.9.4`
 
-## URLs / ports
+### Run the application
+From the repository root:
 
-- **Backend default**: `http://localhost:3000` (may increment up to `3100` if busy)
-- **Frontend default**: `http://localhost:5173` (may increment up to `5200` if busy)
+`./run.sh`
 
-`run.sh` prints the final URLs it chose.
+The script:
+- Installs frontend and backend dependencies
+- Creates the required `.env` files if they are missing
+- Starts both the backend and frontend
+- Automatically selects available ports if the defaults are already in use
+- Opens the frontend in the browser when possible
+
+### Default URLs
+- Backend: `http://localhost:3000`
+- Frontend: `http://localhost:5173`
+
+If either port is unavailable, `run.sh` selects another available port and prints the final URLs in the terminal.
+
+### Stop the application
+
+Press `Ctrl+C` in the terminal running `./run.sh`. This stops the frontend and the backend process started by the script.
 
 ## Database
 
-- **SQLite file**: `backend/notes.db`
-- **Schema creation**: automatic on backend boot via TypeORM `synchronize: true` in `backend/src/app.module.ts`
+The application uses SQLite for persistence.
 
-## Stop everything
+The database is created automatically when the backend starts, using TypeORM schema synchronization.
 
-In the terminal running `./run.sh`, press:
+## Original Challenge
 
-- **Ctrl+C**
-
-This stops the frontend and the script will also stop the backend process it started.
-
+The original requirements for the technical challenge are available in [`CHALLENGE.md`](./CHALLENGE.md).
