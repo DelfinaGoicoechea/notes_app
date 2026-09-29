@@ -8,7 +8,7 @@ import { NotesModule } from './notes/notes.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'notes.db',
+      database: process.env.DATABASE_PATH ?? 'notes.db',
       autoLoadEntities: true,
       synchronize: true,
     }),
